@@ -9,13 +9,13 @@ all: compile build
 
 compile:
 	# nothing to see here
-	@echo Nothing to compile?
-
-build:
-	# Build widgets and place in build/widgets
+	@echo Building widgets
 	./Taskfile build-status-widget
 	./Taskfile build-workspace-status-widget
 	./Taskfile build-pdb-widget
+
+build:
+	# Build widgets and place in build/widgets
 	# The rest is done by the Dockerfile
 	# is this really necessary?
 	# chmod +x scripts/entrypoint.sh
