@@ -1,0 +1,25 @@
+[services]
+
+[services.Auth2]
+url = "{{KBASE_ENDPOINT}}auth/api/V2/token"
+tokenCacheLifetime = 300000
+tokenCacheMaxSize = 20000
+
+[services.ServiceWidgetDemo]
+url = "{{KBASE_ENDPOINT}}servicewidgetdemo"
+
+[ui]
+# in prod the ui host is narrative.kbase.us, but in all others it
+# is X.kbase.us, where X is ci, next, appdev, narrative-dev
+#  defaults:
+# the ui origin is the base url for which to create links back to the ui
+# This is used when a redirection back to a ui is needed for error reporting
+# during oauth flow.
+# KBASE_ENDPOINT is like https://ci.kbase.us/services/
+# splitting on / gives ['https:', '', 'ci.kbase.us', 'services', '']
+# we are interested in the hostname.
+{% set host = KBASE_ENDPOINT.split('/')[2] %}
+origin = "https://{% if host == 'kbase.us' %}narrative.kbase.us{% else %}{{host}}{% endif %}"
+
+[module]
+serviceRequestTimeout = 60000

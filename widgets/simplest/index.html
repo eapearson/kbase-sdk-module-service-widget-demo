@@ -1,0 +1,26 @@
+<html>
+
+<head>
+    <title>Simplest</title>
+</head>
+
+<body>
+    <h1>Simplest</h1>
+    <p>
+        You see, a widget can just be html, css, and Javascript, without anything fancy.
+    </p>
+    <p>
+        Of course, there isn't much point for such a think, other than to demonstrate it.
+    </p>
+    <p>
+        Yet, at the same time, it is the basis upon which more elaborate tools are built.
+    </p>
+    <div id="root"></div>
+    <script>
+        const p = document.createElement('p');
+        p.innerText = 'As I was saying, just Javascript, html, css.';
+        document.getElementById('root').appendChild(p);
+    </script>
+</body>
+
+</html>

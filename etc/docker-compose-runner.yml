@@ -1,0 +1,14 @@
+version: '3.6'
+services:
+  servicewidgetdemo:
+    build:
+      context: .
+    volumes:
+      - .:/kb/module
+    environment:
+      # Environment must be supplied just to satisfy render-config-dev which
+      # needs these to populate the config!
+      # They may be left unsatisfied, however, for most uses.
+      - KBASE_ENDPOINT
+    command:
+      - bash

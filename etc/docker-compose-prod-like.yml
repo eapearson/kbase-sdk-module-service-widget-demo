@@ -1,0 +1,27 @@
+#
+# A dockerfile which simulates production better than the main dockerfile, which is for development.
+#
+version: '3.6'
+networks:
+  kbase-dev:
+    name: kbase-dev
+services:
+  servicewidgetdemo:
+    build:
+      context: ..
+      dockerfile: ../Dockerfile
+    image: kbase/servicewidgetdemo:dev
+    container_name: ServiceWidgetDemo
+    hostname: servicewidgetdemo
+    dns: 8.8.8.8
+    networks:
+      # kbase-dev network enables it to be integrated into the kbase-ui proxy
+      # for local ui integration work
+      - kbase-dev
+    ports:
+      # NB cannot use 5000 because macOS uses it; it is handy to expose
+      # this port for poking at the API during development.
+      - "5001:5000"
+    environment:
+      - DEV=no
+      - KBASE_ENDPOINT

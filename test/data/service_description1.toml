@@ -1,0 +1,9 @@
+name = "ServiceWidgetDemo"
+
+title = "Service Widget Demo"
+
+language = "Python"
+
+description = """
+A service for playing with Dynamic Service Widgets.
+"""

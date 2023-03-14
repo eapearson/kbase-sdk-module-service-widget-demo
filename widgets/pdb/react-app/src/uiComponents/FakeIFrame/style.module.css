@@ -1,0 +1,15 @@
+.main {
+    flex: 1 1 0;
+    border: 1px solid red;
+    display: flex;
+    flex-direction: column;
+}
+
+.iframeArea {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    /* some minimal height, this will get reset when the widget is rendered 
+      and it issues the 'resized' message with it's natural or preferred height. */
+    height: 100px;
+}

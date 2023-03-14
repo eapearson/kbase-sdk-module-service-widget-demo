@@ -1,0 +1,28 @@
+version: '3.6'
+networks:
+  kbase-dev:
+    name: kbase-dev
+services:
+  servicewidgetdemo:
+    build:
+      context: .
+    container_name: servicewidgetdemo
+    # We like to use the service module name here.
+    hostname: servicewidgetdemo
+    dns: 8.8.8.8
+    volumes:
+      # Update this to wherever you want VS Code to mount the folder of your project
+      - .:/kb/module
+    networks:
+      # kbase-dev network enables it to be integrated into the kbase-ui proxy
+      # for local ui integration work
+      - kbase-dev
+    ports:
+      # NB cannot use 5000 because macOS uses it; it is handy to expose
+      # this port for poking at the API during development.
+      - "5001:5000"
+    environment:
+      - DEV=yes
+      - KBASE_ENDPOINT
+    entrypoint: [ "scripts/entrypoint.sh" ]
+    command: [ 'scripts/start-server-dev.sh' ] 

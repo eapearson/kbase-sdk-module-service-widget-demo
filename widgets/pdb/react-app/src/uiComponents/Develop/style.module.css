@@ -1,0 +1,12 @@
+.main {
+    flex: 1 1 0;
+    border: 1px solid red;
+    display: flex;
+    flex-direction: column;
+}
+
+.authArea {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+}

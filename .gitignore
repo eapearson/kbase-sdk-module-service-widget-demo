@@ -1,0 +1,27 @@
+/test_local
+/sdk.cfg
+/_local
+/dev/work/data
+/lib/
+.idea
+
+# Development artifacts
+LOCAL_DEV_NOTES.md
+custom.env
+*.pyc
+.DS_Store
+docs/api/index.html
+/deploy/*
+/work
+build/
+
+
+# Testing
+/htmlcov/
+.coverage
+coverage.lcov
+.pytest_cache
+.mypy_cache
+
+# Deployment
+/deploy

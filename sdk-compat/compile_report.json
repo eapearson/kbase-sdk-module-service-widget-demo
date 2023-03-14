@@ -1,0 +1,33 @@
+{
+  "functions": {
+    "run_ServiceWidgetDemo": {
+      "name": "run_ServiceWidgetDemo",
+      "comment": "This is just a dummy function",
+      "place": null,
+      "input": [
+        {
+          "type": "mapping<string,UnspecifiedObject>",
+          "comment": null
+        }
+      ],
+      "output": [
+        {
+          "type": "ServiceWidgetDemo.Bar",
+          "comment": ""
+        }
+      ]
+    }
+  },
+  "module_name": "ServiceWidgetDemo",
+  "sdk_version": "1.2.0",
+  "sdk_git_commit": "8def489f648a7ff5657d33ed05f41c60f4766e1b",
+  "impl_file_path": "lib/ServiceWidgetDemo/ServiceWidgetDemo.py",
+  "spec_files": [
+    {
+      "content": "/*\nA KBase module: ServiceWidgetDemo\n*/\n\nmodule ServiceWidgetDemo {\n    typedef structure {\n        string report_name;\n        string report_ref;\n    } ReportResults;\n\n    /*\n        This example function accepts any number of parameters and returns results in a KBaseReport\n    */\n    funcdef run_WidgetDemo(mapping<string,UnspecifiedObject> params) returns (ReportResults output) authentication required;\n\n};\n",
+      "file_name": "ServiceWidgetDemo.spec",
+      "is_main": 1
+    }
+  ],
+  "function_places": {}
+}

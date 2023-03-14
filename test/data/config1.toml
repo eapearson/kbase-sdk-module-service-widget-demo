@@ -1,0 +1,24 @@
+[services]
+
+[services.Auth2]
+url = "http://127.0.0.1:9999/services/auth/api/V2/token"
+tokenCacheLifetime = 300000
+tokenCacheMaxSize = 20000
+
+[services.ServiceWidgetDemo]
+url = "http://127.0.0.1:9999/services/servicewidgetdemo"
+
+[ui]
+# in prod the ui host is narrative.kbase.us, but in all others it
+# is X.kbase.us, where X is ci, next, appdev, narrative-dev
+#  defaults:
+# the ui origin is the base url for which to create links back to the ui
+# This is used when a redirection back to a ui is needed for error reporting
+# during oauth flow.
+# KBASE_ENDPOINT is like https://ci.kbase.us/services/
+# splitting on / gives ['https:', '', 'ci.kbase.us', 'services', '']
+# we are interested in the hostname.
+origin = "https://ci.kbase.us"
+
+[module]
+serviceRequestTimeout = 60000

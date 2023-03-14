@@ -1,0 +1,435 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "Widget Demo Dynamic Service",
+        "description": "The ServiceWidgetDemo is a KBase SDK-compatible dynamic service for demonstrating\nthe ability to provide widgets in a dynamic service.\n",
+        "termsOfService": "https://www.kbase.us/about/terms-and-conditions-v2/",
+        "contact": {
+            "name": "KBase, Lawrence Berkeley National Laboratory, DOE",
+            "url": "https://www.kbase.us",
+            "email": "engage@kbase.us"
+        },
+        "license": {
+            "name": "The MIT License",
+            "url": "https://github.com/kbase/kb_sdk/blob/develop/LICENSE.md"
+        },
+        "version": "0.1.0"
+    },
+    "paths": {
+        "/status": {
+            "get": {
+                "tags": [
+                    "misc"
+                ],
+                "summary": "Get Status",
+                "description": "Get Service Status\n\nWith no parameters, this endpoint returns the current status of the service. The status code itself\nis always \"ok\". Other information includes the current time, and the start time.\n\nIt can be used as a healthcheck, for basic latency performance (as it makes no\ni/o or other high-latency calls), or for time synchronization (as it returns the current time).",
+                "operationId": "get_status_status_get",
+                "responses": {
+                    "200": {
+                        "description": "Successfully returns the service status",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/info": {
+            "get": {
+                "tags": [
+                    "misc"
+                ],
+                "summary": "Get Info",
+                "description": "Get Service Information\n\nReturns basic information about the service and its runtime configuration.",
+                "operationId": "get_info_info_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InfoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/rcsb-annotations/{ref}": {
+            "get": {
+                "tags": [
+                    "misc"
+                ],
+                "summary": "Get Rcsb Annotations",
+                "description": "Get RCSB Annotations from a Genome",
+                "operationId": "get_rcsb_annotations_rcsb_annotations__ref__get",
+                "parameters": [
+                    {
+                        "required": true,
+                        "schema": {
+                            "title": "Ref",
+                            "type": "string"
+                        },
+                        "name": "ref",
+                        "in": "path"
+                    },
+                    {
+                        "description": "KBase auth token",
+                        "required": false,
+                        "schema": {
+                            "title": "Authorization",
+                            "maxLength": 32,
+                            "minLength": 32,
+                            "type": "string",
+                            "description": "KBase auth token"
+                        },
+                        "name": "authorization",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response Get Rcsb Annotations Rcsb Annotations  Ref  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/docs": {
+            "get": {
+                "tags": [
+                    "misc"
+                ],
+                "summary": "Docs",
+                "description": "Get API Documentation\n\nProvides a web interface to the auto-generated API docs.",
+                "operationId": "docs_docs_get",
+                "responses": {
+                    "200": {
+                        "description": "Successfully returned the api docs",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Auth2Service": {
+                "title": "Auth2Service",
+                "required": [
+                    "url",
+                    "tokenCacheLifetime",
+                    "tokenCacheMaxSize"
+                ],
+                "type": "object",
+                "properties": {
+                    "url": {
+                        "title": "Url",
+                        "type": "string"
+                    },
+                    "tokenCacheLifetime": {
+                        "title": "Tokencachelifetime",
+                        "type": "integer"
+                    },
+                    "tokenCacheMaxSize": {
+                        "title": "Tokencachemaxsize",
+                        "type": "integer"
+                    }
+                }
+            },
+            "Config": {
+                "title": "Config",
+                "required": [
+                    "services",
+                    "ui",
+                    "module"
+                ],
+                "type": "object",
+                "properties": {
+                    "services": {
+                        "$ref": "#/components/schemas/Services"
+                    },
+                    "ui": {
+                        "$ref": "#/components/schemas/UIConfig"
+                    },
+                    "module": {
+                        "$ref": "#/components/schemas/ModuleConfig"
+                    }
+                }
+            },
+            "GitInfo": {
+                "title": "GitInfo",
+                "required": [
+                    "commit_hash",
+                    "commit_hash_abbreviated",
+                    "author_name",
+                    "author_date",
+                    "committer_name",
+                    "committer_date",
+                    "url",
+                    "branch"
+                ],
+                "type": "object",
+                "properties": {
+                    "commit_hash": {
+                        "title": "Commit Hash",
+                        "type": "string"
+                    },
+                    "commit_hash_abbreviated": {
+                        "title": "Commit Hash Abbreviated",
+                        "type": "string"
+                    },
+                    "author_name": {
+                        "title": "Author Name",
+                        "type": "string"
+                    },
+                    "author_date": {
+                        "title": "Author Date",
+                        "type": "integer"
+                    },
+                    "committer_name": {
+                        "title": "Committer Name",
+                        "type": "string"
+                    },
+                    "committer_date": {
+                        "title": "Committer Date",
+                        "type": "integer"
+                    },
+                    "url": {
+                        "title": "Url",
+                        "type": "string"
+                    },
+                    "branch": {
+                        "title": "Branch",
+                        "type": "string"
+                    },
+                    "tag": {
+                        "title": "Tag",
+                        "type": "string"
+                    }
+                }
+            },
+            "HTTPValidationError": {
+                "title": "HTTPValidationError",
+                "type": "object",
+                "properties": {
+                    "detail": {
+                        "title": "Detail",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        }
+                    }
+                }
+            },
+            "InfoResponse": {
+                "title": "InfoResponse",
+                "required": [
+                    "service-description",
+                    "config",
+                    "git-info"
+                ],
+                "type": "object",
+                "properties": {
+                    "service-description": {
+                        "$ref": "#/components/schemas/ServiceDescription"
+                    },
+                    "config": {
+                        "$ref": "#/components/schemas/Config"
+                    },
+                    "git-info": {
+                        "$ref": "#/components/schemas/GitInfo"
+                    }
+                }
+            },
+            "ModuleConfig": {
+                "title": "ModuleConfig",
+                "required": [
+                    "serviceRequestTimeout"
+                ],
+                "type": "object",
+                "properties": {
+                    "serviceRequestTimeout": {
+                        "title": "Servicerequesttimeout",
+                        "type": "integer"
+                    }
+                }
+            },
+            "ServiceDescription": {
+                "title": "ServiceDescription",
+                "required": [
+                    "name",
+                    "title",
+                    "language",
+                    "description"
+                ],
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "title": "Name",
+                        "maxLength": 50,
+                        "minLength": 2,
+                        "type": "string"
+                    },
+                    "title": {
+                        "title": "Title",
+                        "maxLength": 100,
+                        "minLength": 5,
+                        "type": "string"
+                    },
+                    "language": {
+                        "title": "Language",
+                        "maxLength": 50,
+                        "minLength": 1,
+                        "type": "string"
+                    },
+                    "description": {
+                        "title": "Description",
+                        "maxLength": 4000,
+                        "minLength": 50,
+                        "type": "string"
+                    }
+                }
+            },
+            "Services": {
+                "title": "Services",
+                "required": [
+                    "Auth2",
+                    "ServiceWidgetDemo"
+                ],
+                "type": "object",
+                "properties": {
+                    "Auth2": {
+                        "$ref": "#/components/schemas/Auth2Service"
+                    },
+                    "ServiceWidgetDemo": {
+                        "$ref": "#/components/schemas/ServiceWidgetDemo"
+                    }
+                }
+            },
+            "StatusResponse": {
+                "title": "StatusResponse",
+                "required": [
+                    "status",
+                    "time",
+                    "initial_time",
+                    "start_time"
+                ],
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "title": "Status",
+                        "type": "string"
+                    },
+                    "time": {
+                        "title": "Time",
+                        "type": "integer"
+                    },
+                    "initial_time": {
+                        "title": "Initial Time",
+                        "type": "integer"
+                    },
+                    "start_time": {
+                        "title": "Start Time",
+                        "type": "integer"
+                    }
+                }
+            },
+            "UIConfig": {
+                "title": "UIConfig",
+                "required": [
+                    "origin"
+                ],
+                "type": "object",
+                "properties": {
+                    "origin": {
+                        "title": "Origin",
+                        "type": "string"
+                    }
+                }
+            },
+            "ValidationError": {
+                "title": "ValidationError",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "type": "object",
+                "properties": {
+                    "loc": {
+                        "title": "Location",
+                        "type": "array",
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    "msg": {
+                        "title": "Message",
+                        "type": "string"
+                    },
+                    "type": {
+                        "title": "Error Type",
+                        "type": "string"
+                    }
+                }
+            },
+            "WidgetDemoService": {
+                "title": "WidgetDemoService",
+                "required": [
+                    "url"
+                ],
+                "type": "object",
+                "properties": {
+                    "url": {
+                        "title": "Url",
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "misc",
+            "description": "Miscellaneous operations"
+        }
+    ]
+}

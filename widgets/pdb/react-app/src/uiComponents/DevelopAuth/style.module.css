@@ -1,0 +1,92 @@
+.main {
+    flex: 1 1 0px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.authToolbar {
+    border: 2px green dashed;
+    padding: 4px;
+}
+
+.authForm {
+    border: 2px red dashed;
+    padding: 4px;
+}
+
+.debug {
+    color: white;
+    background-color: red;
+}
+
+.area {
+    border: 3px solid silver;
+    padding: 4px;
+    margin: 4px;
+}
+
+
+
+.auth {
+    flex: 1 1 0px;
+    display: flex;
+    flex-direction: column;
+}
+
+.authAuthenticated {}
+
+.authUnauthenticated {
+    color: red;
+    padding: 4px;
+    border: 1px red solid;
+}
+
+.authError {
+    color: red;
+    padding: 4px;
+    border: 1px red solid;
+}
+
+.authForm {
+    flex: 0 0 auto;
+    border: 1px blue dotted;
+    padding: 8px;
+}
+
+.authForm input {
+    width: 20em
+}
+
+.authToolbar {
+    flex: 0 0 auto;
+    border: 1px blue dotted;
+    padding: 8px;
+}
+
+.authBody {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.scrollableFlexColumn {
+    flex: 1 1 0px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+}
+
+.toolbarArea {
+    flex: 0 0 auto;
+}
+
+.iframeArea {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    /* some minimal height, this will get reset when the widget is rendered 
+      and it issues the 'resized' message with it's natural or preferred height. */
+    height: 100px;
+}
