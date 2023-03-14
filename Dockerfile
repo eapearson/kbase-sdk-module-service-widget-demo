@@ -52,7 +52,7 @@ COPY ./poetry.lock /kb/module
 COPY ./pyproject.toml /kb/module
 COPY ./SERVICE_DESCRIPTION.toml /kb/module
 # SDK Compatibility
-COPY ./sdk-compat/kbase.yml /kb/module
+COPY ./kbase.yml /kb/module
 COPY ./sdk-compat/compile_report.json /kb/module
 # We cherry-pick scripts
 # TODO: just separate out deploy scripts from dev scripts.
