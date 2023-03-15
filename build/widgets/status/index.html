@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Status | WidgetDemo</title>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 1em;
+        }
+
+        .flex-table {
+            flex: 1 1 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .flex-row {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .flex-col {
+            flex: 1 1 0;
+            display: flex;
+            flex-direction: column;
+            padding: 0.1em;
+            margin: 0 0.5em;
+        }
+
+        .flex-col:first-child {
+            margin-left: 0;
+        }
+
+        .flex-col:last-child {
+            margin-right: 0;
+        }
+
+        /* just for this table */
+        .flex-col:first-child {
+            font-weight: bold;
+            color: rgba(150, 150, 150, 1);
+            flex: 0 0 6em;
+        }
+
+        /* Error formatting */
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>WidgetDemo Status</h1>
+    <p>
+        You see, a widget is really just html, css, javascript; so it can, unlike a regular
+        web app, mix text, images - anything, in the widget.
+    </p>
+    <p>
+        In this extremely minimal example, we include all code in the index.html page!
+    </p>
+
+    <div id="error" class="hidden">
+        <h2>Error</h2>
+        <p class="error" id="errorMessage"></p>
+        <h3>Stack Trace</h3>
+        <pre id="errorStacktrace"></pre>
+    </div>
+
+    <div id="success" class="hidden">
+        <h2>Success!</h2>
+        <div class="flex-table">
+            <div class="flex-row">
+                <div class="flex-col">
+                    status
+                </div>
+                <div class="flex-col" id="status">
+                </div>
+            </div>
+            <div class="flex-row">
+                <div class="flex-col">
+                    start time
+                </div>
+                <div class="flex-col" id="start_time">
+                </div>
+            </div>
+            <div class="flex-row">
+                <div class="flex-col">
+                    server time
+                </div>
+                <div class="flex-col" id="server_time">
+                </div>
+            </div>
+            <div class="flex-row">
+                <div class="flex-col">
+                    time bias
+                </div>
+                <div class="flex-col" id="time_bias">
+                </div>
+            </div>
+            <div class="flex-row">
+                <div class="flex-col">
+                    your time
+                </div>
+                <div class="flex-col" id="your_time">
+                </div>
+            </div>
+            <div class="flex-row">
+                <div class="flex-col">
+                    up time
+                </div>
+                <div class="flex-col" id="run_time">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+
+        import { setup } from './narrative.js';
+
+        function setText(id, text) {
+            document.getElementById(id).innerText = text;
+        }
+
+        function getServiceEndpoint(servicePath) {
+            const origin = document.location.origin;
+            const path = document.location.pathname;
+
+            // get service path prefix
+            const m = path.match(new RegExp("^(.*)/widgets/.*$"));
+            const prefix = m[1];
+
+            const serviceEndpoint = `${origin}${prefix}/${servicePath}`;
+
+            return serviceEndpoint;
+        }
+
+        function formatDateTime(value) {
+            return Intl.DateTimeFormat('en-US', {
+                year: "numeric",
+                month: "numeric",
+                day: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+                second: "numeric",
+            }).format(new Date(value));
+        }
+
+        function formatElapsedTime(value) {
+            return new Intl.RelativeTimeFormat('en-US', {}).format(value, 'minute');
+        }
+
+        function niceElapsed(elapsedTime, options = {}) {
+            function makeUnit(unit, format, value) {
+                switch (format) {
+                    case 'full':
+                        const label = ' ' + unit.long;
+                        if (value !== 1) {
+                            return label + 's';
+                        }
+                        return label;
+                    case 'short':
+                        return ' ' + unit.short;
+                    case 'compact':
+                        return unit.single;
+                }
+            }
+
+            const timeUnits = [
+                {
+                    long: 'millisecond',
+                    short: 'ms',
+                    single: 'm',
+                    size: 1000
+                },
+                {
+                    long: 'second',
+                    short: 'sec',
+                    single: 's',
+                    size: 60
+                },
+                {
+                    long: 'minute',
+                    short: 'min',
+                    single: 'm',
+                    size: 60
+                },
+                {
+                    long: 'hour',
+                    short: 'hr',
+                    single: 'h',
+                    size: 24
+                },
+                {
+                    long: 'day',
+                    short: 'day',
+                    single: 'd',
+                    size: 30
+                }
+            ];
+
+            const format = options.format || 'compact';
+            let temp = Math.abs(elapsedTime);
+            const parts = timeUnits
+                .map(function (unit) {
+                    // Get the remainder of the current value
+                    // sans unit size of it composing the next
+                    // measure.
+                    const unitValue = temp % unit.size;
+                    // Recompute the measure in terms of the next unit size.
+                    temp = (temp - unitValue) / unit.size;
+
+                    const unitLabel = makeUnit(unit, format, unitValue);
+
+                    return {
+                        label: unitLabel,
+                        value: unitValue
+                    };
+                })
+                .reverse();
+
+            parts.pop();
+
+            // We skip over large units which have no value until we
+            // hit the first unit with value. This effectively trims off
+            // zeros from the beginning.
+            // We also can limit the resolution with options.resolution, which
+            // limits the number of time units to display.
+            let keep = false;
+            const minimized = [];
+            for (let i = 0; i < parts.length; i += 1) {
+                if (!keep) {
+                    if (parts[i].value > 0) {
+                        keep = true;
+                    } else {
+                        continue;
+                    }
+                }
+                if (options.precision && options.precision === minimized.length) {
+                    break;
+                }
+                minimized.push(parts[i]);
+            }
+
+            if (minimized.length === 0) {
+                // This means that there is are no time measurements > 1 second.
+                return [
+                    '<' + (format !== 'compact' ? ' ' : '') + '1' + makeUnit(timeUnits[1], format, 1),
+                    minimized
+                ];
+            } else {
+                // Skip seconds if we are into the hours...
+                // if (minimized.length > 2) {
+                //     minimized.pop();
+                // }
+                return [
+                    minimized
+                        .map(function (item) {
+                            return String(item.value) + item.label;
+                        })
+                        .join(' ')
+                ];
+            }
+        }
+
+        function show(area) {
+            document.getElementById(area).classList.remove('hidden');
+        }
+
+        async function main() {
+            try {
+                setup();
+                const result = await fetch(getServiceEndpoint('status'));
+                const yourTime = Date.now();
+                const status = await result.json();
+                setText('status', status.status);
+                setText('start_time', formatDateTime(status.start_time));
+                setText('server_time', formatDateTime(status.time));
+                setText('your_time', formatDateTime(yourTime));
+                setText('time_bias', status.time - yourTime);
+
+                setText('run_time', niceElapsed(Date.now() - status.start_time));
+
+                window.setInterval(() => {
+                    setText('your_time', formatDateTime(Date.now()));
+                    setText('run_time', niceElapsed(Date.now() - status.start_time));
+                }, 200);
+
+                show('success');
+            } catch (ex) {
+                console.error(ex);
+                setText('errorMessage', ex.message);
+                const stacktrace = ex.stack.split('\n');
+                setText('errorStacktrace', stacktrace.join('\n'));
+                show('error');
+            }
+        }
+
+        window.addEventListener('load', () => {
+            main();
+        });
+    </script>
+</body>
+
+</html>

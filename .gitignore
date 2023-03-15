@@ -13,7 +13,7 @@ custom.env
 docs/api/index.html
 /deploy/*
 /work
-build/
+/widgets/**/build/
 
 
 # Testing
