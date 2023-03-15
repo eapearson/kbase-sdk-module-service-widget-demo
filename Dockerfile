@@ -53,7 +53,7 @@ COPY ./pyproject.toml /kb/module
 COPY ./SERVICE_DESCRIPTION.toml /kb/module
 # SDK Compatibility
 COPY ./kbase.yml /kb/module
-COPY ./sdk-compat /kb/module
+COPY ./sdk-compat /kb/module/sdk-compat
 # We cherry-pick scripts
 # TODO: just separate out deploy scripts from dev scripts.
 # COPY ./sdk-compat/entrypoint.sh /kb/module/scripts
