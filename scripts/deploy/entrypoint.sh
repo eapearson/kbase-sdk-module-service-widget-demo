@@ -9,10 +9,10 @@
 
 if [ $# -eq 0 ] ; then
   # Starts the server
-  scripts/start-server.sh
+  scripts/deploy/start-server.sh
 elif [ "${1}" = "serve" ] ; then
   # Starts the server
-  scripts/start-server.sh
+  scripts/deploy/start-server.sh
 elif [ "${1}" = "test" ] ; then
   # Run Tests
   echo "Run Tests"

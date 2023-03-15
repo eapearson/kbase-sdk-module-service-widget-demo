@@ -1,6 +1,13 @@
 #!/bin/bash
 
-scripts/render-config.sh
+
+set -E
+mkdir -p deploy
+jinja render \
+  -t etc/config.toml.jinja \
+  -o deploy/config.toml \
+  -e KBASE_ENDPOINT="${KBASE_ENDPOINT:?Required environment variable KBASE_ENDPOINT absent or empty}"
+
 exit_code=$?
 if [ $exit_code != 0 ]; then
   echo "Error ${exit_code} encountered rendering the service configuration, NOT STARTING SERVER"

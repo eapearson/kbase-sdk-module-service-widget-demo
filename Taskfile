@@ -32,7 +32,7 @@ function _build-cra {
 # Runs docker compose with the given docker compose filename suffix with the given command arguments
 #
 function _dc-run {
-  docker compose -f "etc/docker-compose-${1}.yml" --project-directory "${PWD}" --project-name servicewidgetdemo run --rm  --entrypoint scripts/entrypoint.sh servicewidgetdemo "${@:2}"
+  docker compose -f "etc/docker-compose-${1}.yml" --project-directory "${PWD}" --project-name servicewidgetdemo run --rm  --entrypoint scripts/dev/entrypoint.sh servicewidgetdemo "${@:2}"
 }
 
 function _dc-up {
@@ -44,11 +44,11 @@ function _dc-up {
 #
 
 function mypy {
-  _dc-run runner scripts/run-mypy.sh
+  _dc-run runner scripts/dev/run-mypy.sh
 }
 
 function black {
-  _dc-run runner scripts/run-black.sh "${1}" "${2}"
+  _dc-run runner scripts/dev/run-black.sh "${1}" "${2}"
 }
 
 function git-info {
@@ -58,7 +58,7 @@ function git-info {
 
 function render-config {
   mkdir -p deploy
-  _dc-run runner scripts/render-config.sh
+  _dc-run runner scripts/deploy/render-config.sh
 }
 
 #
@@ -100,14 +100,14 @@ function server {
 #
 function render-config-dev {
   export KBASE_ENDPOINT=https://ci.kbase.us/services/
-  _dc-run runner scripts/render-config.sh
+  _dc-run runner scripts/deploy/render-config.sh
 }
 
 function test {
   # Testing only touches locally controlled services, either mock
   # mock (kbase auth, orcid) or locally running (mongodb), so
   # all such values are controlled within the test environment.
-  _dc-run testing scripts/run-tests.sh "${1}"
+  _dc-run testing scripts/dev/run-tests.sh "${1}"
 }
 
 function dev-server {

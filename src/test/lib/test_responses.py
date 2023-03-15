@@ -7,9 +7,12 @@ from urllib.parse import parse_qs, urlparse
 import pytest
 
 from servicewidgetdemo.lib import responses
-from servicewidgetdemo.lib.responses import (JSONResponse, RedirectResponse,
-                                             Response,
-                                             error_response_not_found)
+from servicewidgetdemo.lib.responses import (
+    JSONResponse,
+    RedirectResponse,
+    Response,
+    error_response_not_found,
+)
 
 config_yaml = load_data_file("config1.toml")
 

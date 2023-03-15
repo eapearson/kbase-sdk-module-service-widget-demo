@@ -53,12 +53,13 @@ COPY ./pyproject.toml /kb/module
 COPY ./SERVICE_DESCRIPTION.toml /kb/module
 # SDK Compatibility
 COPY ./kbase.yml /kb/module
-COPY ./sdk-compat/compile_report.json /kb/module
+COPY ./sdk-compat /kb/module
 # We cherry-pick scripts
 # TODO: just separate out deploy scripts from dev scripts.
-COPY ./sdk-compat/entrypoint.sh /kb/module/scripts
-COPY ./scripts/start-server.sh /kb/module/scripts
-COPY ./scripts/render-config.sh /kb/module/scripts
+# COPY ./sdk-compat/entrypoint.sh /kb/module/scripts
+COPY ./scripts/deploy /kb/module/scripts/deploy
+# COPY ./scripts/start-server.sh /kb/module/scripts
+# COPY ./scripts/render-config.sh /kb/module/scripts
 # Widgets
 COPY ./build/widgets  /kb/module/widgets
 
@@ -66,4 +67,4 @@ WORKDIR /kb/module
 
 RUN poetry config virtualenvs.create false && poetry config virtualenvs.options.no-setuptools true && poetry install
 
-ENTRYPOINT [ "scripts/entrypoint.sh" ]
+ENTRYPOINT [ "scripts/deploy/entrypoint.sh" ]
