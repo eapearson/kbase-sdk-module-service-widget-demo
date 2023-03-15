@@ -29,6 +29,8 @@ elif [ "${1}" = "bash" ] ; then
   bash
 elif [ "${1}" = "report" ] ; then
   # Simply copies the dummy compilation report to the expected location.
+  echo "report task running in ${PWD}"
+  ls -ltra
   cp ./sdk-compat/compile_report.json ./work/compile_report.json
   echo "Compilation Report copied to ./work/compile_report.json"
 else
