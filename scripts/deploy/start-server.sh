@@ -20,6 +20,7 @@ fi
 cd service
 
 export MODULE_DIR="${PWD}"
+export PYTHONPATH="${PWD}"
 
 echo "Running in PROD mode; server will NOT reload when source changes"
 poetry run uvicorn servicewidgetdemo.main:app --host 0.0.0.0 --port 5000

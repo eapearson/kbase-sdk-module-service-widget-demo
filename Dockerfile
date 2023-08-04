@@ -63,7 +63,7 @@ COPY ./scripts/deploy /kb/module/scripts/deploy
 # there really needs to be
 COPY ./SERVICE_DESCRIPTION.toml /kb/module/service
 COPY ./src/servicewidgetdemo /kb/module/service/servicewidgetdemo
-COPY ./build/widgets  /kb/module/service/widgets
+#COPY ./build/widgets  /kb/module/service/widgets
 COPY ./static /kb/module/service/static
 
 WORKDIR /kb/module
