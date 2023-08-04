@@ -2,8 +2,8 @@ import json
 
 from jinja2 import ChoiceLoader, Environment, PackageLoader
 
-from src.servicewidgetdemo.lib.config import Config
-from src.servicewidgetdemo.lib.service_clients.workspace import WorkspaceService, parse_workspace_ref
+from servicewidgetdemo.lib.config import Config
+from servicewidgetdemo.lib.service_clients.workspace import WorkspaceService, parse_workspace_ref
 
 VIEWER_NAME = 'protein_structures_viewer'
 

@@ -1,7 +1,7 @@
 from typing import Any, Coroutine, Tuple
 
-from src.servicewidgetdemo.lib.config import config
-from src.servicewidgetdemo.lib.service_clients.kbase_auth import KBaseAuth, TokenInfo
+from servicewidgetdemo.lib.config import config
+from servicewidgetdemo.lib.service_clients.kbase_auth import KBaseAuth, TokenInfo
 
 
 #

@@ -52,7 +52,7 @@ from servicewidgetdemo.widgets.dynamic_demo.widget import Widget as DynamicDemoW
 from servicewidgetdemo.widgets.media_viewer.widget import Widget as MediaViewer
 from servicewidgetdemo.widgets.protein_structures_viewer.widget import Widget as ProteinStructuresViewer
 
-from src.servicewidgetdemo.lib.auth import ensure_authorization, ensure_authorization_cookie
+from servicewidgetdemo.lib.auth import ensure_authorization, ensure_authorization_cookie
 
 AUTHORIZATION_COOKIE_HEADER = Cookie(
     # default=None,
