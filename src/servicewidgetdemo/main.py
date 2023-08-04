@@ -346,71 +346,71 @@ app.mount(
     "/widgets/status", StaticFiles(directory="widgets/status", html=True), name="status"
 )
 # app.mount("/widgets/pdb", StaticFiles(directory="widgets/pdb", html=True), name="pdb")
-app.mount(
-    "/widgets/pdb",
-    StaticFiles(directory="widgets/pdb/react-app/build", html=True),
-    name="pdb",
-)
-app.mount(
-    "/widgets/pdbinfo",
-    StaticFiles(directory="widgets/pdbinfo/react-app/build", html=True),
-    name="pdbinfo",
-)
-app.mount(
-    "/widgets/simple1",
-    StaticFiles(directory="widgets/simple1/src", html=True),
-    name="simple1",
-)
-app.mount(
-    "/widgets/simple2",
-    StaticFiles(directory="widgets/simple2/src", html=True),
-    name="simple2",
-)
-app.mount(
-    "/widgets/simple3",
-    StaticFiles(directory="widgets/simple3/src", html=True),
-    name="simple3",
-)
-app.mount(
-    "/widgets/feature_set_viewer",
-    StaticFiles(directory="widgets/feature_set_viewer/src", html=True),
-    name="feature_set_viewer",
-)
-app.mount(
-    "/widgets/media_viewer",
-    StaticFiles(directory="widgets/media_viewer/src", html=True),
-    name="media_viewer",
-)
-app.mount(
-    "/widgets/workspace-status",
-    StaticFiles(directory="widgets/workspace-status", html=True),
-    name="workspace-status",
-)
-@app.get(
-    "/widgets/dynamic-demo",
-    response_class=HTMLResponse,
-    include_in_schema=True,
-    tags=["misc"],
-    responses={
-        200: {
-            "description": "Successfully returned the api docs",
-        },
-        404: {"description": "Not Found"},
-    },
-)
-async def get_widgets_dynamic_demo(req: Request) -> HTMLResponse:
-    """
-    Get API Documentation
-
-    Provides a web interface to the auto-generated API docs.
-    """
-    try:
-        widget = DynamicDemoWidget()
-    except Exception as ex:
-        message = f"EXCEPTION {str(ex)}"
-        return HTMLResponse(content=message)
-
-    return HTMLResponse(content=widget.render())
+# app.mount(
+#     "/widgets/pdb",
+#     StaticFiles(directory="widgets/pdb/react-app/build", html=True),
+#     name="pdb",
+# )
+# app.mount(
+#     "/widgets/pdbinfo",
+#     StaticFiles(directory="widgets/pdbinfo/react-app/build", html=True),
+#     name="pdbinfo",
+# )
+# app.mount(
+#     "/widgets/simple1",
+#     StaticFiles(directory="widgets/simple1/src", html=True),
+#     name="simple1",
+# )
+# app.mount(
+#     "/widgets/simple2",
+#     StaticFiles(directory="widgets/simple2/src", html=True),
+#     name="simple2",
+# )
+# app.mount(
+#     "/widgets/simple3",
+#     StaticFiles(directory="widgets/simple3/src", html=True),
+#     name="simple3",
+# )
+# app.mount(
+#     "/widgets/feature_set_viewer",
+#     StaticFiles(directory="widgets/feature_set_viewer/src", html=True),
+#     name="feature_set_viewer",
+# )
+# app.mount(
+#     "/widgets/media_viewer",
+#     StaticFiles(directory="widgets/media_viewer/src", html=True),
+#     name="media_viewer",
+# )
+# app.mount(
+#     "/widgets/workspace-status",
+#     StaticFiles(directory="widgets/workspace-status", html=True),
+#     name="workspace-status",
+# )
+# @app.get(
+#     "/widgets/dynamic-demo",
+#     response_class=HTMLResponse,
+#     include_in_schema=True,
+#     tags=["misc"],
+#     responses={
+#         200: {
+#             "description": "Successfully returned the api docs",
+#         },
+#         404: {"description": "Not Found"},
+#     },
+# )
+# async def get_widgets_dynamic_demo(req: Request) -> HTMLResponse:
+#     """
+#     Get API Documentation
+#
+#     Provides a web interface to the auto-generated API docs.
+#     """
+#     try:
+#         widget = DynamicDemoWidget()
+#     except Exception as ex:
+#         message = f"EXCEPTION {str(ex)}"
+#         return HTMLResponse(content=message)
+#
+#     return HTMLResponse(content=widget.render())
 
 #
 # MEDIA VIEWER
@@ -421,7 +421,7 @@ async def get_widgets_dynamic_demo(req: Request) -> HTMLResponse:
 #
 app.mount(
     "/widgets/media-viewer/static",
-    StaticFiles(directory="src/servicewidgetdemo/widgets/media_viewer/static"),
+    StaticFiles(directory="static/widgets/media_viewer"),
     name="media-viewer-static",
 )
 
@@ -462,19 +462,19 @@ async def get_widgets_jinja2_demo(
 
 app.mount(
     "/static",
-    StaticFiles(directory="src/static"),
+    StaticFiles(directory="static"),
     name="media-viewer-static",
 )
 
 app.mount(
     "/widgets/static",
-    StaticFiles(directory="src/servicewidgetdemo/widgets/static"),
+    StaticFiles(directory="static/widgets"),
     name="media-viewer-static",
 )
 
 app.mount(
     "/widgets/protein-structures-viewer/static",
-    StaticFiles(directory="src/servicewidgetdemo/widgets/protein_structures_viewer/static"),
+    StaticFiles(directory="static/widgets/protein_structures_viewer"),
     name="protein-structures-viewer-static",
 )
 @app.get(

@@ -135,6 +135,12 @@ function run-server {
   # docker compose -f etc/docker-compose-prod-like.yml up
 }
 
+function shell-server {
+  export KBASE_ENDPOINT="${KBASE_ENDPOINT:-https://ci.kbase.us/services/}"
+  _dc-run prod-like bash
+  # docker compose -f etc/docker-compose-prod-like.yml up
+}
+
 # For building a prod-like image locally
 function build-server {
   docker build -t kbase/servicewidgetdemo:dev .

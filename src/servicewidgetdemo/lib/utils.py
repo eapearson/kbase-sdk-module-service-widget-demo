@@ -6,8 +6,9 @@ from datetime import datetime, timezone
 
 
 def module_dir() -> str:
-    my_dir = os.path.dirname(__file__)
-    return os.path.realpath(os.path.join(my_dir, "../../.."))
+    return os.environ['MODULE_DIR']
+    # my_dir = os.path.dirname(__file__)
+    # return os.path.realpath(os.path.join(my_dir, "../../.."))
 
 
 def current_time_millis() -> int:
