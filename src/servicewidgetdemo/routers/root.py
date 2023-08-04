@@ -6,18 +6,15 @@ from typing import Any, List, Tuple
 from fastapi import APIRouter, Header
 from pydantic import Field
 
-from servicewidgetdemo.lib.config import (
-    Config,
-    GitInfo,
-    config,
-    get_git_info,
-    get_service_description,
-)
+from servicewidgetdemo.lib.config import (Config, GitInfo, config,
+                                          get_git_info,
+                                          get_service_description)
 from servicewidgetdemo.lib.runtime import global_runtime
 from servicewidgetdemo.lib.type import ServiceBaseModel
 from servicewidgetdemo.lib.utils import epoch_time_millis
 from servicewidgetdemo.model import ServiceDescription
 from servicewidgetdemo.service_clients.Workspace import Workspace
+import time
 
 router = APIRouter(prefix="")
 
@@ -121,23 +118,38 @@ async def get_rcsb_annotations(
     # Get genome, perhaps from cache.
     # TODO
 
+    print("HERE")
+
     raw_wsid, raw_objid, raw_ver = ref.split("_")
     wsid = int(raw_wsid)
     objid = int(raw_objid)
     ver = int(raw_ver)
     genomeRef = f"{wsid}/{objid}/{ver}"
 
+    print("AND THERE", genomeRef)
+
     # First ensure this user can access the object.
     # TODO: get from config.
-    workspace = Workspace("https://appdev.kbase.us/services/ws", 10000, authorization)
+    workspace = Workspace("https://ci.kbase.us/services/ws", 10000, authorization)
+
+    start = time.perf_counter()
 
     if not workspace.can_access_object(genomeRef):
-        raise Exception("Cannot access object")
+        raise Exception(f"Cannot access object with ref '{genomeRef}'")
+
+    got_access = time.perf_counter()
+
+    print("ERRR")
 
     filename = f"object_{wsid}_{objid}_{ver}.json"
     filepath = Path(f"/kb/module/work/{filename}")
 
     if filepath.is_file():
+        got_is_file = time.perf_counter()
+        print("getting from cache", got_access - start, got_is_file - got_access)
+        # TODO: not much faster than a WS call (900ms vs 700ms from local dev machine);
+        #       should switch to a memory-based cache? But genome objects can be
+        #       very large.
         with open(filepath) as fin:
             genome_object = json.load(fin)
     else:
@@ -161,27 +173,34 @@ async def get_rcsb_annotations(
 
     # pdb_infos = [['row_id', 'structure_name', 'format', 'genome_ref', 'genome_name', 'from_rcsb', 'feature_id', 'feature_type', 'sequence_identities']]
     pdb_infos = []
-    for feature in genome_object["data"]["features"]:
-        feature_id = feature["id"]
 
-        ontology = feature["ontology_terms"]
-        if "RCSB" in ontology:
-            terms = ontology["RCSB"].keys()
-            for term in terms:
-                bare_term = term.split(":")[1].split("_")[0]
-                pdb_infos.append(
-                    [
-                        str(uuid.uuid4()),
-                        bare_term,
-                        "pdb",
-                        genomeRef,
-                        object_name,
-                        True,
-                        feature_id,
-                        feature["type"],
-                        "N/A",
-                    ]
-                )
+    if "features" in genome_object["data"]:
+        print("HMM")
+        for feature in genome_object["data"]["features"]:
+            if "ontology_terms" in feature:
+                feature_id = feature["id"]
+                ontology = feature["ontology_terms"]
+                if "RCSB" in ontology:
+                    terms = ontology["RCSB"].keys()
+                    for term in terms:
+                        bare_term = term.split(":")[1].split("_")[0]
+                         # This should be unique for each row
+                        item_id = f"{feature_id}_{bare_term}"
+                        pdb_infos.append(
+                            [
+                                item_id,
+                                bare_term,
+                                "pdb",
+                                genomeRef,
+                                object_name,
+                                True,
+                                feature_id,
+                                feature["type"],
+                                "N/A",
+                            ]
+                        )
+
+        print("AAAHHH", pdb_infos)
 
     # return {"pdb_features": pdb_infos}
     return GetRCSBAnnotationsResult(pdb_features=pdb_infos)

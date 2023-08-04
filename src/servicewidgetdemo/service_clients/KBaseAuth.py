@@ -4,17 +4,16 @@ The SDK version has been modified to integrate with this codebase, such as
 using httpx, pydantic models.
 """
 import json
+import httpx
 from typing import Dict, Optional
 
-import httpx
-from cache3 import SafeCache  # type: ignore
-from pydantic import Field
+# from cache3 import SafeCache  # type: ignore
+from cachetools import TTLCache
 from servicewidgetdemo import model
 from servicewidgetdemo.lib.errors import ServiceError
 from servicewidgetdemo.lib.responses import ErrorResponse
 from servicewidgetdemo.lib.type import ServiceBaseModel
-
-global_cache = None
+from pydantic import Field
 
 
 class TokenInfo(ServiceBaseModel):
@@ -32,6 +31,8 @@ class KBaseAuth(object):
     """
     A very basic KBase auth client for the Python server.
     """
+
+    cache: TTLCache[str, TokenInfo]
 
     def __init__(
         self,
@@ -54,29 +55,31 @@ class KBaseAuth(object):
             raise TypeError("missing required named argument 'cache_lifetime'")
         self.cache_lifetime: int = cache_lifetime
 
-        global global_cache
+        self.cache: TTLCache[str, TokenInfo] = TTLCache(
+            maxsize=self.cache_max_size, ttl=self.cache_lifetime
+        )
 
-        if global_cache is None:
-            global_cache = SafeCache(
-                max_size=self.cache_max_size, timeout=self.cache_lifetime
-            )
+        # global global_cache
+        #
+        # if global_cache is None:
+        #     global_cache = SafeCache(
+        #         max_size=self.cache_max_size, timeout=self.cache_lifetime
+        #     )
+        #
+        # self.cache = global_cache
 
-        self.cache = global_cache
-
+    # @cachedmethod(lambda self: self.cache, key=partial(hashkey, 'token_info'))
     def get_token_info(self, token: str) -> TokenInfo:
-
         if token == "":
             raise TypeError("Token may not be empty")
 
         cache_value = self.cache.get(token)
         if cache_value is not None:
-            return TokenInfo.parse_obj(cache_value)
+            return cache_value
 
         # TODO: timeout needs to be configurable
+        response = httpx.get(self.url, headers={"authorization": token}, timeout=10000)
         try:
-            response = httpx.get(
-                self.url, headers={"authorization": token}, timeout=10000
-            )
             json_response = response.json()
         except json.JSONDecodeError as ex:
             # Note that here we are raising the default exception for the
@@ -97,6 +100,7 @@ class KBaseAuth(object):
                 ),
                 status_code=502,
             )
+
         if not response.is_success:
             # The auth service should return a 500 for all errors
             # Make an attempt to handle a specific auth error
@@ -108,7 +112,7 @@ class KBaseAuth(object):
                 raise KBaseAuthError("Auth Service Error", appcode, message)
 
         token_info: TokenInfo = TokenInfo.parse_obj(json_response)
-        self.cache.set(token, token_info.dict(), timeout=token_info.cachefor)
+        self.cache[token] = token_info
         return token_info
 
     def get_username(self, token: str) -> str:

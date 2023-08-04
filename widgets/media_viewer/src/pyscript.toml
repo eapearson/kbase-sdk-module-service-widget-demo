@@ -1,0 +1,5 @@
+[splashscreen]
+enabled = false
+
+[[fetch]]
+files = ['./lib/workspace.py', './lib/html.py']

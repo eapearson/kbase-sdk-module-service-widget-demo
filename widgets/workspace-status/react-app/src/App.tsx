@@ -144,9 +144,6 @@ class KBResizeObserver {
     }
 
     onResized(entries: Array<ResizeObserverEntry>, observer: ResizeObserver) {
-        // for (const entry of entries) {
-        //   console.log('entry', entry);
-        // }
         const { width, height } = this.outerDimensions(this.observedElement);
         this.width = width;
         this.height = height;

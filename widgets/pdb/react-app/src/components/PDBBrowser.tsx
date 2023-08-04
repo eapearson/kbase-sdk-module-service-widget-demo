@@ -14,6 +14,7 @@ export interface PDBBrowserProps {
     pdbsStructureInfo: PDBSStructureInfo;
     onShowMolstar: (pdbStructureInfo: PDBStructureInfo) => void;
     selected: Array<string>;
+    searchTerm: string | null;
 }
 
 interface PDBBrowserState {
@@ -25,7 +26,7 @@ export default class PDBBrowser extends Component<PDBBrowserProps, PDBBrowserSta
     constructor(props: PDBBrowserProps) {
         super(props);
         this.state = {
-            searchValue: '',
+            searchValue: this.props.searchTerm || '',
             pdbs: props.pdbsStructureInfo
         }
     }
@@ -55,8 +56,8 @@ export default class PDBBrowser extends Component<PDBBrowserProps, PDBBrowserSta
 
     clearSearch() {
         this.setState({
-                searchValue: '',
-                pdbs: this.props.pdbsStructureInfo
+            searchValue: '',
+            pdbs: this.props.pdbsStructureInfo
         })
     }
 
@@ -171,7 +172,7 @@ export default class PDBBrowser extends Component<PDBBrowserProps, PDBBrowserSta
                             return <a href={`https://www.rcsb.org/structure/${pdb.structId}`} target="_blank" rel="noreferrer">
                                 RCSB
                             </a>
-                        } 
+                        }
                         return 'n/a';
                     })();
                     //  addPDBTab(pdbStructureInfo[index], index);
@@ -182,15 +183,15 @@ export default class PDBBrowser extends Component<PDBBrowserProps, PDBBrowserSta
                         return "outline-secondary";
                     })();
                     return <span>
-                        <Button variant={molStarVariant}  style={{marginRight: '0.25em'}}
+                        <Button variant={molStarVariant} style={{ marginRight: '0.25em' }}
                             onClick={(ev) => {
                                 ev.preventDefault();
                                 this.props.onShowMolstar(pdb)
                             }}>
-                                mol*
-                            </Button>
-                      
-                            {rcsbLink}
+                            mol*
+                        </Button>
+
+                        {rcsbLink}
                     </span>
                 },
                 flex: '0 0 10em',
@@ -198,11 +199,11 @@ export default class PDBBrowser extends Component<PDBBrowserProps, PDBBrowserSta
             {
                 id: 'genome',
                 label: 'Genome',
-                render: ({genomeRef}: PDBStructureInfo) => {
+                render: ({ genomeRef }: PDBStructureInfo) => {
                     return <a href={`${document.location.origin}/#dataview/${genomeRef}`} target="_blank" rel="noreferrer">
                         {genomeRef}
                     </a>
-                }, 
+                },
                 flex: '0 0 7em',
                 sorter: (a: PDBStructureInfo, b: PDBStructureInfo) => {
                     return a.genomeRef.localeCompare(b.genomeRef);
@@ -211,7 +212,7 @@ export default class PDBBrowser extends Component<PDBBrowserProps, PDBBrowserSta
             {
                 id: 'feature',
                 label: 'Feature',
-                render: ({genomeRef, featureId}: PDBStructureInfo) => {
+                render: ({ genomeRef, featureId }: PDBStructureInfo) => {
                     return <a href={`${document.location.origin}/#dataview/${genomeRef}?sub=Feature&subid=${featureId}`} target="_blank" rel="noreferrer">
                         {featureId}
                     </a>
@@ -244,8 +245,8 @@ export default class PDBBrowser extends Component<PDBBrowserProps, PDBBrowserSta
         ]
 
         return <FlexCol>
-            <FlexCol style={{flex: '0 0 auto'}}>
-                <FlexRow style={{alignItems: 'center', justifyContent: 'flex-start'}}>
+            <FlexCol style={{ flex: '0 0 auto' }}>
+                <FlexRow style={{ alignItems: 'center', justifyContent: 'flex-start' }}>
                     {/* <FlexCol title style={{flex: '0 0 auto'}}>
                         Search
                     </FlexCol> */}
@@ -269,14 +270,14 @@ export default class PDBBrowser extends Component<PDBBrowserProps, PDBBrowserSta
         </FlexCol>
     }
 
-  
+
 
     renderCount() {
         if (this.state.pdbs.length === this.props.pdbsStructureInfo.length) {
             if (this.state.searchValue !== '') {
-                return <span>All {niceCount(this.state.pdbs.length) } records match for <i>{this.state.searchValue}</i>.</span>
+                return <span>All {niceCount(this.state.pdbs.length)} records match for <i>{this.state.searchValue}</i>.</span>
             }
-            return <span>{niceCount(this.state.pdbs.length) } records</span>
+            return <span>{niceCount(this.state.pdbs.length)} records</span>
         }
         if (this.state.pdbs.length === 0) {
             return <span>Nothing found for <i>{this.state.searchValue}</i></span>

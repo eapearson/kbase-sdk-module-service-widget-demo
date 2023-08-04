@@ -4,17 +4,29 @@ import PDB, { PDBSStructureInfo, PDBStructureInfo } from "../lib/PDB";
 import { AsyncProcess, AsyncProcessStatus } from "../uiComponents/AsyncProcess";
 import ErrorAlert from "../uiComponents/ErrorAlert";
 import Loading from "../uiComponents/Loading";
-import { NiceConfig } from "../uiComponents/narrativeTypes";
+// import { NiceConfig } from "../uiComponents/narrativeTypes";
 import { SimpleError } from "../uiComponents/widgetSupport";
 // import NGLViewer from "./NGLViewer";
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { JSONObject } from '@kbase/ui-lib/lib/json';
+import { NarrativeConfig } from "../uiComponents/Develop";
+import { NarrativeContext, NarrativeContextState } from "../uiComponents/NarrativeContext";
 import MolstarViewer from "./MolstarComponent";
 import PDBBrowser from "./PDBBrowser";
 import styles from './PDBTool.module.css';
 
+
 export interface PDBToolProps {
-    config: NiceConfig;
+    config: NarrativeConfig;
     // TODO: should also accept no auth
-    token: string;
+    token: string | null;
+    // Params
+    genomeRef: string;
+    tabs?: Array<string>;
+    selectedTab?: string | null;
+    searchTerm: string | null;
+    widgetStateUpdated: (widgetState: JSONObject) => void;
 }
 
 export interface TabInfo {
@@ -57,13 +69,36 @@ export default class PDBTool extends Component<PDBToolProps, PDBToolState> {
             // dynamic service, so we need to use the dynamic
             // service client... oh, well, TO DO!
             const url = `${document.location.origin}/services/servicewidgetdemo`
-            const pdbClient = new PDB({url, token: this.props.token, timeout: 1000 })
-            const pdbsStructureInfo = await pdbClient.getPDBStructureInfo('69796_3_1')
+            const pdbClient = new PDB({ url, token: this.props.token, timeout: 1000 })
+            const pdbsStructureInfo = await pdbClient.getPDBStructureInfo(this.props.genomeRef)
+
+            // if we have tabs supplied in the props, we need to propopulate 
+            // the tabs.
+            const tabs = (() => {
+                const propsTabs = this.props.tabs;
+                if (propsTabs && propsTabs.length > 0) {
+                    return pdbsStructureInfo.filter((pdb) => {
+                        return propsTabs.includes(pdb.itemId);
+                    }).map((pdb) => {
+                        return {
+                            id: pdb.itemId,
+                            label: pdb.structId,
+                            pdbStructureInfo: pdb
+                        }
+                    });
+                }
+                return [];
+            })();
+
+            const activeTabKey = this.props.selectedTab || 'browser';
+
             this.setState({
                 processState: {
                     status: AsyncProcessStatus.SUCCESS,
                     value: {
-                        pdbsStructureInfo, tabs: [], activeTabKey: 'browser'
+                        pdbsStructureInfo,
+                        activeTabKey,
+                        tabs
                     }
                 }
             })
@@ -95,13 +130,14 @@ export default class PDBTool extends Component<PDBToolProps, PDBToolState> {
         if (processState.status !== AsyncProcessStatus.SUCCESS) {
             return;
         }
-        // console.log('showing molstar tab...', pdbStructureInfo.structId, pdbStructureInfo);
         if (processState.value.tabs.some(({ id, label }) => {
             return id === pdbStructureInfo.itemId;
         })) {
             // TODO: make the tab active.
             return;
         }
+
+
         this.setState({
             processState: {
                 ...processState,
@@ -118,26 +154,63 @@ export default class PDBTool extends Component<PDBToolProps, PDBToolState> {
         })
     }
 
+    removeTabFromState(tabDef: TabInfo, selectedTab: string) {
+        const processState = this.state.processState
+        if (processState.status !== AsyncProcessStatus.SUCCESS) {
+            return;
+        }
+        const tabs = processState.value.tabs
+            .filter(({ id }) => {
+                return id !== tabDef.id;
+            })
+            .map(({ id }) => {
+                return id;
+            });
 
+
+        this.props.widgetStateUpdated({ widgetState: { tabs, selectedTab } });
+    }
 
     closeTab(tabDef: TabInfo) {
         const processState = this.state.processState;
         if (processState.status !== AsyncProcessStatus.SUCCESS) {
             return;
         }
+
         const tabs = processState.value.tabs.filter((tabInfo) => {
             return (tabInfo.id !== tabDef.id)
         });
+        const selectedTab = (() => {
+            if (tabDef.id === processState.value.activeTabKey) {
+                return 'browser';
+            }
+            return processState.value.activeTabKey
+        })();
         this.setState({
             processState: {
                 ...processState,
                 value: {
                     ...processState.value,
                     tabs,
-                    activeTabKey: 'browser'
+                    activeTabKey: selectedTab
                 }
             }
+        }, () => {
+            this.removeTabFromState(tabDef, selectedTab)
         });
+    }
+
+    selectTabInContext(selectedTab: string) {
+        const processState = this.state.processState
+        if (processState.status !== AsyncProcessStatus.SUCCESS) {
+            return;
+        }
+        const tabs = processState.value.tabs
+            .map(({ id }) => {
+                return id;
+            });
+
+        this.props.widgetStateUpdated({ widgetState: { tabs, selectedTab } });
     }
 
     onSelectTab(key: string | null) {
@@ -156,6 +229,8 @@ export default class PDBTool extends Component<PDBToolProps, PDBToolState> {
                     activeTabKey: key
                 }
             }
+        }, () => {
+            this.selectTabInContext(key)
         });
     }
 
@@ -178,21 +253,27 @@ export default class PDBTool extends Component<PDBToolProps, PDBToolState> {
     renderTabNavs(toolState: ToolState) {
         return toolState.tabs.map((tabDef) => {
             const { id, label } = tabDef;
-            return <Nav.Item style={{display: 'flex', flexDirection: 'row'}} key={id}>
-                <Nav.Link eventKey={id} style={{flex: '1 1 0'}}>
+            return <Nav.Item style={{ display: 'flex', flexDirection: 'row' }} key={id}>
+                <Nav.Link eventKey={id} style={{ flex: '1 1 0' }}>
                     {label}
                 </Nav.Link>
-                <Button size="sm" variant="light" style={{ flex: '0 0 auto', padding: '0.25em' }} onClick={(ev) => { ev.preventDefault(); this.closeTab(tabDef) }}>X</Button>
+                <Button
+                    size="sm"
+                    variant="light"
+                    style={{ flex: '0 0 auto', padding: '0.25em' }}
+                    onClick={(ev) => { ev.preventDefault(); this.closeTab(tabDef) }}>
+                    <FontAwesomeIcon icon={faXmark} />
+                </Button>
             </Nav.Item>
         })
     }
 
     renderTabContent(toolState: ToolState) {
         return toolState.tabs.map((tabDef) => {
-            const { id, label } = tabDef;
+            const { id } = tabDef;
             return <Tab.Pane className="flexScrollableColumn" eventKey={id} key={id}>
                 {/* <NGLViewer structureName={tabDef.pdbStructureInfo.structureName} format={tabDef.pdbStructureInfo.format} /> */}
-                 <MolstarViewer structureName={tabDef.pdbStructureInfo.structureName} format={tabDef.pdbStructureInfo.format} />
+                <MolstarViewer structureName={tabDef.pdbStructureInfo.structureName} format={tabDef.pdbStructureInfo.format} />
             </Tab.Pane>
         })
     }
@@ -200,7 +281,7 @@ export default class PDBTool extends Component<PDBToolProps, PDBToolState> {
     renderTool2(toolState: ToolState) {
         return (
             <Tab.Container defaultActiveKey="browser" activeKey={toolState.activeTabKey} onSelect={this.onSelectTab.bind(this)}>
-                <Row className="flexScrollable" style={{flex: '1 1 0'}}>
+                <Row className="flexScrollable" style={{ flex: '1 1 0' }}>
                     <Col sm={2} className="flexScrollable">
                         <Nav variant="pills" className="flex-column flexScrollableColumn">
                             <Nav.Item>
@@ -211,17 +292,53 @@ export default class PDBTool extends Component<PDBToolProps, PDBToolState> {
                             {this.renderTabNavs(toolState)}
                         </Nav>
                     </Col>
-                    <Col sm={10} className="flexScrollableColumn" style={{ height:  '100%'}}>
+                    <Col sm={10} className="flexScrollableColumn" style={{ height: '100%' }}>
                         <Tab.Content className="flexScrollableColumn">
                             <Tab.Pane eventKey="browser" className="flexScrollableColumn">
-                                <PDBBrowser
-                                    pdbsStructureInfo={toolState.pdbsStructureInfo}
-                                    onShowMolstar={this.onShowMolstar.bind(this)}
-                                    selected={toolState.tabs.map(({ id }) => { return id; })} />
+                                {/* TODO: haha - don't need this here as widgetStateUpdated is passed in as a prop too  */}
+                                <NarrativeContext.Consumer>
+                                    {(state: NarrativeContextState) => {
+                                        console.log('HERE??', state);
+                                        if (state.status !== AsyncProcessStatus.SUCCESS) {
+                                            return;
+                                        }
+                                        const onShowMolstar = (pdbStructureInfo: PDBStructureInfo) => {
+                                            const processState = this.state.processState
+                                            if (processState.status !== AsyncProcessStatus.SUCCESS) {
+                                                return;
+                                            }
+                                            // console.log('showing molstar tab...', pdbStructureInfo.structId, pdbStructureInfo);
+                                            if (processState.value.tabs.some(({ id, label }) => {
+                                                return id === pdbStructureInfo.itemId;
+                                            })) {
+                                                // TODO: make the tab active.
+                                                return;
+                                            }
+                                            const tabs = processState.value.tabs.map(({ id }) => {
+                                                return id;
+                                            });
+                                            tabs.push(pdbStructureInfo.itemId);
+                                            state.value.widgetStateUpdated({
+                                                widgetState: {
+                                                    tabs, selectedTab: pdbStructureInfo.itemId
+                                                }
+                                            });
+                                            this.onShowMolstar(pdbStructureInfo);
+                                        }
+                                        return <PDBBrowser
+                                            pdbsStructureInfo={toolState.pdbsStructureInfo}
+                                            onShowMolstar={onShowMolstar}
+                                            searchTerm={this.props.searchTerm}
+                                            selected={toolState.tabs.map(({ id }) => { return id; })}
+
+                                        />
+                                    }}
+                                </NarrativeContext.Consumer>
+
                             </Tab.Pane>
                             {this.renderTabContent(toolState)}
                         </Tab.Content>
-                        
+
                     </Col>
                 </Row>
             </Tab.Container>

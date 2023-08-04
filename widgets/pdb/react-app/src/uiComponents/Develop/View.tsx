@@ -1,29 +1,29 @@
 import { Component, PropsWithChildren } from "react";
-import { NarrativeConfig } from ".";
 import DevelopAuth from "../DevelopAuth";
+import DevelopParams from "../DevelopParams";
+import FakeIFrame from "../FakeIFrame";
 import styles from './style.module.css';
 
 export interface ViewProps extends PropsWithChildren {
-    narrativeConfig: NarrativeConfig
- }
+    // narrativeConfig: NarrativeConfig
+}
 
 interface ViewState { }
 
 export default class View extends Component<ViewProps, ViewState> {
-    // renderFakeIFrame() {
-    //     switch (this.props.authState) {
-    //         case DevelopAuthStatus.
-    //     }
-    //     return <div></div>
-    // }
     render() {
-        
         return <div className={styles.main + ' flexScrollableColumn'}>
-            <div>Title here</div>
-            <div className={styles.authArea + ' flexScrollableColumn'}>
-                <DevelopAuth narrativeConfig={this.props.narrativeConfig} >
+            <h1>PDB Widget Demo Developer Tool</h1>
+            <div className={styles.paramsArea}>
+                <DevelopParams />
+            </div>
+            <div className={styles.authArea}>
+                <DevelopAuth />
+            </div>
+            <div className={styles.iframeArea}>
+                <FakeIFrame>
                     {this.props.children}
-                </DevelopAuth>
+                </FakeIFrame>
             </div>
         </div>
     }

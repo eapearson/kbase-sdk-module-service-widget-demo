@@ -24,5 +24,5 @@ services:
     environment:
       - DEV=yes
       - KBASE_ENDPOINT
-    entrypoint: [ "scripts/entrypoint.sh" ]
-    command: [ 'scripts/start-server-dev.sh' ] 
+    entrypoint: [ "scripts/dev/entrypoint.sh" ]
+    command: [ 'scripts/dev/start-server-dev.sh' ]

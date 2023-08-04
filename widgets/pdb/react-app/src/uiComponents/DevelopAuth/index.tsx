@@ -1,9 +1,9 @@
 import { AuthClient } from '@kbase/ui-lib';
 import Cookies from "js-cookie";
-import { Component, PropsWithChildren } from "react";
+import { Component } from "react";
 import { Spinner } from "react-bootstrap";
 import { AsyncProcess, AsyncProcessStatus } from "../AsyncProcess";
-import { NarrativeConfig } from '../Develop';
+import { ContextStatus, DevelopContext } from '../Develop';
 import ErrorAlert from "../ErrorAlert";
 import { SimpleError } from "../widgetSupport";
 import View from "./View";
@@ -47,15 +47,15 @@ export type DevelopAuthState = AsyncProcess<DevelopAuthentication, SimpleError>;
 
 // Component Props and State
 
-export interface ControllerProps extends PropsWithChildren{
-    narrativeConfig: NarrativeConfig
+export interface ControllerProps {
+    // narrativeConfig: NarrativeConfig
+    // appParams: JSONObject
+    // widgetState: JSONObject
 }
 
 interface ControllerState {
     process: DevelopAuthState;
 }
-
-
 
 // Component
 
@@ -104,14 +104,14 @@ export default class Controller extends Component<ControllerProps, ControllerSta
             const account = await auth.getMe(token);
             // TODO: fold into auth client.
             if ('error' in account) {
-                 this.setState({
+                this.setState({
                     process: {
                         status: AsyncProcessStatus.ERROR,
                         error: {
-                            message: 'Auth error TODO'
+                            message: 'Auth error TODO x'
                         }
                     }
-                 })
+                })
                 return;
             }
 
@@ -156,7 +156,55 @@ export default class Controller extends Component<ControllerProps, ControllerSta
             }
         }
     }
-        
+
+    async calcAuthenticationStatus(): Promise<DevelopAuthentication> {
+        // this.setState({
+        //     process: {
+        //         status: AsyncProcessStatus.INITIALIZING
+        //     }
+        // });
+        const token = Cookies.get('kbase_session');
+        if (!token) {
+            // dispatch(authUnauthenticated());
+            return {
+                status: DevelopAuthStatus.UNAUTHENTICATED
+            }
+        }
+        // TODO: replace with config...
+        // Also, need a better Auth client (e.g. timeout)
+        const auth = new AuthClient({ url: `${document.location.origin}/services/auth` })
+
+        // Oh no, an orphan promise!
+
+        const account = await auth.getMe(token);
+        // TODO: fold into auth client.
+        if ('error' in account) {
+            throw new Error('Auth Error - TODO');
+            // this.setState({
+            //     process: {
+            //         status: AsyncProcessStatus.ERROR,
+            //         error: {
+            //             message: 'Auth error TODO'
+            //         }
+            //     }
+            // })
+            // return;
+        }
+
+        const roles = account.roles.map(({ id, desc }) => id);
+        // dispatch(authAuthenticated(token, account.user, account.display, roles));
+        return {
+            status: DevelopAuthStatus.AUTHENTICATED,
+            authentication: {
+                realname: account.display,
+                username: account.user,
+                token: token,
+                roles
+            }
+        };
+
+    }
+
     removeAuthentication() {
         Cookies.remove('kbase_session');
         this.determineAuthenticationStatus()
@@ -169,31 +217,90 @@ export default class Controller extends Component<ControllerProps, ControllerSta
     // Rendering
 
     render() {
-        switch (this.state.process.status) {
-            case AsyncProcessStatus.NONE:
-                return <div>NONE DEV AUTH</div>;
-            case AsyncProcessStatus.INITIALIZING:
-                return <Spinner />;
-            case AsyncProcessStatus.SUCCESS:
-                return <View
-                   narrativeConfig={this.props.narrativeConfig}
-                    authState={this.state.process.value}
-                    removeAuthentication={this.removeAuthentication.bind(this)}
-                    addAuthentication={this.addAuthentication.bind(this)}
-                >
-                   {this.props.children}
-                    </View>
-            case AsyncProcessStatus.UPDATING:
-               return <View
-                   authState={this.state.process.value}
-                   narrativeConfig={this.props.narrativeConfig}
-                    removeAuthentication={this.removeAuthentication.bind(this)}
-                    addAuthentication={this.addAuthentication.bind(this)}
-               >
-                   {this.props.children}
-                   </View>
-            case AsyncProcessStatus.ERROR:
-                return <ErrorAlert message={this.state.process.error.message} />
-        }
+
+        return <DevelopContext.Consumer>
+            {(contextValue) => {
+                if (contextValue.status !== ContextStatus.READY) {
+                    return;
+                }
+                const { narrativeConfig, updateAuthState } = contextValue.value;
+
+                if (narrativeConfig == null) {
+                    console.warn('DEVELOP AUTH - NULL CONTEXT VALUES');
+                    return;
+                }
+
+                const removeAuthentication = async () => {
+                    Cookies.remove('kbase_session');
+                    const newAuth = await this.calcAuthenticationStatus();
+                    updateAuthState(newAuth);
+                }
+
+                const addAuthentication = async (token: string) => {
+                    Cookies.set('kbase_session', token);
+                    const newAuth = await this.calcAuthenticationStatus();
+                    updateAuthState(newAuth);
+                }
+
+                switch (this.state.process.status) {
+                    case AsyncProcessStatus.NONE:
+                        return <div>NONE DEV AUTH</div>;
+                    case AsyncProcessStatus.INITIALIZING:
+                        return <Spinner />;
+                    case AsyncProcessStatus.SUCCESS:
+                        return <View
+                            // narrativeConfig={narrativeConfig}
+                            authState={this.state.process.value}
+                            removeAuthentication={removeAuthentication}
+                            addAuthentication={addAuthentication}
+                        // appParams={appParams}
+                        // widgetState={widgetState}
+                        />
+                    case AsyncProcessStatus.UPDATING:
+                        return <View
+                            authState={this.state.process.value}
+                            // narrativeConfig={this.props.narrativeConfig}
+                            removeAuthentication={removeAuthentication}
+                            addAuthentication={addAuthentication}
+                        // appParams={this.props.appParams}
+                        // widgetState={this.props.widgetState}
+                        />
+                    case AsyncProcessStatus.ERROR:
+                        return <ErrorAlert message={this.state.process.error.message} />
+                }
+            }}
+        </DevelopContext.Consumer>
+
+
+        // switch (this.state.process.status) {
+        //     case AsyncProcessStatus.NONE:
+        //         return <div>NONE DEV AUTH</div>;
+        //     case AsyncProcessStatus.INITIALIZING:
+        //         return <Spinner />;
+        //     case AsyncProcessStatus.SUCCESS:
+        //         return <View
+        //             narrativeConfig={this.props.narrativeConfig}
+        //             authState={this.state.process.value}
+        //             removeAuthentication={this.removeAuthentication.bind(this)}
+        //             addAuthentication={this.addAuthentication.bind(this)}
+        //             appParams={this.props.appParams}
+        //             widgetState={this.props.widgetState}
+        //         >
+        //             {this.props.children}
+        //         </View>
+        //     case AsyncProcessStatus.UPDATING:
+        //         return <View
+        //             authState={this.state.process.value}
+        //             narrativeConfig={this.props.narrativeConfig}
+        //             removeAuthentication={this.removeAuthentication.bind(this)}
+        //             addAuthentication={this.addAuthentication.bind(this)}
+        //             appParams={this.props.appParams}
+        //             widgetState={this.props.widgetState}
+        //         >
+        //             {this.props.children}
+        //         </View>
+        //     case AsyncProcessStatus.ERROR:
+        //         return <ErrorAlert message={this.state.process.error.message} />
+        // }
     }
 }

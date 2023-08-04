@@ -1,0 +1,7 @@
+{
+  "name": "src",
+  "version": "1.0.0",
+  "dependencies": {
+    "molstar": "3.38.0"
+  }
+}

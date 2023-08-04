@@ -1,9 +1,18 @@
 version: '3.6'
+networks:
+  kbase-dev:
+    name: kbase-dev
 services:
     node:
         working_dir: /app
-        image: node:18-slim
+        build:
+          context: .
+          dockerfile: Dockerfile
         container_name: node-builder
         dns: 8.8.8.8
+        networks:
+          - kbase-dev
+        ports:
+          - "3000:3000"
         volumes:
             - $DIR:/app

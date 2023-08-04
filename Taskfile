@@ -26,6 +26,16 @@ function _build-cra {
   echo "Done"
 }
 
+function _shell-cra {
+  NAME="${1}"
+  # Shell into a node container with the provided directory mounted at /app and port :3000 exposed.
+  # This allows an interactive node session?
+  echo "Shelling in ..."
+  export DIR="${PWD}/widgets/${NAME}/react-app"
+  docker compose -f tools/node/docker-compose.yml run --rm --service-ports --entrypoint bash  node
+
+}
+
 #
 # _dc-run name command...
 #
@@ -37,6 +47,10 @@ function _dc-run {
 
 function _dc-up {
   docker compose -f "etc/docker-compose-${1}.yml" --project-directory "${PWD}" --project-name servicewidgetdemo up
+}
+
+function _node-run {
+  docker compose -f "tools/node/docker-compose.yml" --project-directory "${PWD}"
 }
 
 #
@@ -111,12 +125,12 @@ function test {
 }
 
 function dev-server {
-  export KBASE_ENDPOINT=https://appdev.kbase.us/services/
+  export KBASE_ENDPOINT="${KBASE_ENDPOINT:-https://ci.kbase.us/services/}"
   _dc-up dev
 }
 
 function run-server {
-  export KBASE_ENDPOINT=https://appdev.kbase.us/services/
+  export KBASE_ENDPOINT="${KBASE_ENDPOINT:-https://ci.kbase.us/services/}"
   _dc-up prod-like
   # docker compose -f etc/docker-compose-prod-like.yml up
 }
@@ -149,6 +163,22 @@ function build-workspace-status-widget {
 function build-pdb-widget {
   _build-cra "pdb"
 }
+
+
+function develop-pdb-widget {
+  _shell-cra "pdb"
+}
+
+
+function build-pdbinfo-widget {
+  _build-cra "pdbinfo"
+}
+
+
+function develop-pdbinfo-widget {
+  _shell-cra "pdbinfo"
+}
+
 
 
 #

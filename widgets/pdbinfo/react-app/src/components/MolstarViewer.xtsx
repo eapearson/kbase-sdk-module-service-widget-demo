@@ -1,0 +1,59 @@
+import { Viewer } from 'molstar/build/viewer/molstar';
+import { Component, createRef, RefObject } from "react";
+
+// TODO: is this defined in molstar?
+export type MolstarFormat = "mmcif" | "cifCore" | "pdb" | "pdbqt" | "gro" | "xyz" | "mol" | "sdf" | "mol2" | undefined;
+
+export interface MolstarViewerProps {
+    structureName: string;
+    format: MolstarFormat;
+}
+
+interface MolstarViewerState {
+
+}
+
+export default class MolstarViewer extends Component<MolstarViewerProps, MolstarViewerState> {
+    wrapperRef: RefObject<HTMLDivElement>;
+    viewer: Viewer | null = null;
+    constructor(props: MolstarViewerProps) {
+        super(props);
+        this.wrapperRef = createRef();
+    }
+
+    componentDidMount() {
+        this.initialize();
+    }
+
+    async initialize() {
+        if (this.wrapperRef.current === null) {
+            return;
+        }
+        this.viewer = await Viewer.create(this.wrapperRef.current, {
+            layoutIsExpanded: false,
+            layoutShowControls: true,
+            layoutShowRemoteState: false,
+            layoutShowSequence: true,
+            layoutShowLog: true,
+            layoutShowLeftPanel: true,
+            viewportShowExpand: true,
+            viewportShowSelectionMode: true,
+            viewportShowAnimation: true,
+            collapseLeftPanel: true
+        });
+
+         const fileURL = `https://files.rcsb.org/download/${this.props.structureName}.${this.props.format}`;
+            console.log('file url??', fileURL);
+            this.viewer.loadStructureFromUrl(fileURL, this.props.format, false, {
+                representationParams: {
+                    theme: {
+                        globalName: 'operator-name'
+                    }
+                }
+            });
+
+    }
+    render() {
+        return <div ref={this.wrapperRef} />
+    }
+}

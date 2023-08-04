@@ -14,11 +14,18 @@ Routers include: link, linking-sessions, works, orcid, and root.
 """
 from typing import Any, Generic, List, TypeVar
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Header, Path, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.staticfiles import StaticFiles
 from pydantic import Field
+
+# from pydantic.error_wrappers import ErrorDict
+from starlette import status
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.responses import HTMLResponse, JSONResponse
+from fastapi import Cookie
+
 from servicewidgetdemo.lib.config import config
 from servicewidgetdemo.lib.errors import (
     FASTAPI_ERROR,
@@ -41,11 +48,23 @@ from servicewidgetdemo.service_clients.KBaseAuth import (
     KBaseAuthErrorInfo,
     KBaseAuthInvalidToken,
 )
+from servicewidgetdemo.widgets.dynamic_demo.widget import Widget as DynamicDemoWidget
+from servicewidgetdemo.widgets.media_viewer.widget import Widget as MediaViewer
+from servicewidgetdemo.widgets.protein_structures_viewer.widget import Widget as ProteinStructuresViewer
 
-# from pydantic.error_wrappers import ErrorDict
-from starlette import status
-from starlette.exceptions import HTTPException as StarletteHTTPException
-from starlette.responses import HTMLResponse, JSONResponse
+from src.servicewidgetdemo.lib.auth import ensure_authorization, ensure_authorization_cookie
+
+AUTHORIZATION_COOKIE_HEADER = Cookie(
+    # default=None,
+    description="KBase auth token",
+    min_length=32,
+    max_length=32,
+)
+
+
+REF_PARAM = Query(
+    description="A KBase object ref (path)",
+)
 
 ###############################################################################
 # FastAPI application setup
@@ -326,11 +345,167 @@ async def docs(req: Request) -> HTMLResponse:
 app.mount(
     "/widgets/status", StaticFiles(directory="widgets/status", html=True), name="status"
 )
-app.mount("/widgets/pdb", StaticFiles(directory="widgets/pdb", html=True), name="pdb")
-# app.mount("/widgets/pdb", StaticFiles(directory="widgets/pdb/react-app/build", html=True), name="pdb2")
+# app.mount("/widgets/pdb", StaticFiles(directory="widgets/pdb", html=True), name="pdb")
+app.mount(
+    "/widgets/pdb",
+    StaticFiles(directory="widgets/pdb/react-app/build", html=True),
+    name="pdb",
+)
+app.mount(
+    "/widgets/pdbinfo",
+    StaticFiles(directory="widgets/pdbinfo/react-app/build", html=True),
+    name="pdbinfo",
+)
+app.mount(
+    "/widgets/simple1",
+    StaticFiles(directory="widgets/simple1/src", html=True),
+    name="simple1",
+)
+app.mount(
+    "/widgets/simple2",
+    StaticFiles(directory="widgets/simple2/src", html=True),
+    name="simple2",
+)
+app.mount(
+    "/widgets/simple3",
+    StaticFiles(directory="widgets/simple3/src", html=True),
+    name="simple3",
+)
+app.mount(
+    "/widgets/feature_set_viewer",
+    StaticFiles(directory="widgets/feature_set_viewer/src", html=True),
+    name="feature_set_viewer",
+)
+app.mount(
+    "/widgets/media_viewer",
+    StaticFiles(directory="widgets/media_viewer/src", html=True),
+    name="media_viewer",
+)
 app.mount(
     "/widgets/workspace-status",
     StaticFiles(directory="widgets/workspace-status", html=True),
     name="workspace-status",
 )
-# app.mount("/widgets/info", StaticFiles(directory="widgets/info"), name="info")
+@app.get(
+    "/widgets/dynamic-demo",
+    response_class=HTMLResponse,
+    include_in_schema=True,
+    tags=["misc"],
+    responses={
+        200: {
+            "description": "Successfully returned the api docs",
+        },
+        404: {"description": "Not Found"},
+    },
+)
+async def get_widgets_dynamic_demo(req: Request) -> HTMLResponse:
+    """
+    Get API Documentation
+
+    Provides a web interface to the auto-generated API docs.
+    """
+    try:
+        widget = DynamicDemoWidget()
+    except Exception as ex:
+        message = f"EXCEPTION {str(ex)}"
+        return HTMLResponse(content=message)
+
+    return HTMLResponse(content=widget.render())
+
+#
+# MEDIA VIEWER
+#
+
+#
+# Static assets for the media viewer
+#
+app.mount(
+    "/widgets/media-viewer/static",
+    StaticFiles(directory="src/servicewidgetdemo/widgets/media_viewer/static"),
+    name="media-viewer-static",
+)
+
+#
+# Media viewer widget endpoint
+#
+@app.get(
+    "/widgets/media-viewer",
+    response_class=HTMLResponse,
+    include_in_schema=True,
+    tags=["misc"],
+    responses={
+        200: {
+            "description": "Jinja Demo Successfully rendered",
+        },
+        404: {"description": "Not Found"},
+    },
+)
+async def get_widgets_jinja2_demo(
+    req: Request,
+    ref: str = REF_PARAM,
+    kbase_session: str | None = AUTHORIZATION_COOKIE_HEADER,
+    kbase_session_backup: str | None = AUTHORIZATION_COOKIE_HEADER) -> HTMLResponse:
+    """
+    Get API Documentation
+
+    Provides a web interface to the auto-generated API docs.
+    """
+
+    authorization, token_info = ensure_authorization_cookie(kbase_session, kbase_session_backup)
+    try:
+        widget = MediaViewer(token=authorization, ref=ref, config=config())
+    except Exception as ex:
+        message = f"EXCEPTION {str(ex)}"
+        return HTMLResponse(content=message)
+
+    return HTMLResponse(content=widget.render())
+
+app.mount(
+    "/static",
+    StaticFiles(directory="src/static"),
+    name="media-viewer-static",
+)
+
+app.mount(
+    "/widgets/static",
+    StaticFiles(directory="src/servicewidgetdemo/widgets/static"),
+    name="media-viewer-static",
+)
+
+app.mount(
+    "/widgets/protein-structures-viewer/static",
+    StaticFiles(directory="src/servicewidgetdemo/widgets/protein_structures_viewer/static"),
+    name="protein-structures-viewer-static",
+)
+@app.get(
+    "/widgets/protein-structures-viewer",
+    response_class=HTMLResponse,
+    include_in_schema=True,
+    tags=["misc"],
+    responses={
+        200: {
+            "description": "Jinja Demo Successfully rendered",
+        },
+        404: {"description": "Not Found"},
+    },
+)
+async def get_widgets_protein_structures_viewer(
+    req: Request,
+    ref: str = REF_PARAM,
+    kbase_session: str | None = AUTHORIZATION_COOKIE_HEADER,
+    kbase_session_backup: str | None = AUTHORIZATION_COOKIE_HEADER) -> HTMLResponse:
+    """
+    Get API Documentation
+
+    Provides a web interface to the auto-generated API docs.
+    """
+
+    authorization, token_info = ensure_authorization_cookie(kbase_session, kbase_session_backup)
+    try:
+        widget = ProteinStructuresViewer(token=authorization, ref=ref, config=config())
+    except Exception as ex:
+        message = f"EXCEPTION {str(ex)}"
+        return HTMLResponse(content=message)
+
+    return HTMLResponse(content=widget.render())
+

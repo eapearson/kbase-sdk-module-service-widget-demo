@@ -8,4 +8,4 @@ if [ $exit_code != 0 ]; then
 fi
 
 echo "Running in DEV mode; server will reload when source changes"
-poetry run uvicorn servicewidgetdemo.main:app --reload --host 0.0.0.0 --port 5000
+poetry run uvicorn servicewidgetdemo.main:app --reload --reload-dir /kb/module/src --host 0.0.0.0 --port 5000

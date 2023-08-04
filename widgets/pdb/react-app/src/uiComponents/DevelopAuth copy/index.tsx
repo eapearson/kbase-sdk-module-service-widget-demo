@@ -108,7 +108,7 @@ export default class Controller extends Component<ControllerProps, ControllerSta
                     process: {
                         status: AsyncProcessStatus.ERROR,
                         error: {
-                            message: 'Auth error TODO'
+                            message: 'Auth error TODO y'
                         }
                     }
                  })

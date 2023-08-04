@@ -76,4 +76,5 @@ class Workspace(JSONRPC11Service):
             self.rpc_call("get_object_info3", params)
             return True
         except ServiceError as se:
+            print(str(se))
             return False
