@@ -342,9 +342,9 @@ async def docs(req: Request) -> HTMLResponse:
     )
 
 
-app.mount(
-    "/widgets/status", StaticFiles(directory="widgets/status", html=True), name="status"
-)
+# app.mount(
+#     "/widgets/status", StaticFiles(directory="widgets/status", html=True), name="status"
+# )
 # app.mount("/widgets/pdb", StaticFiles(directory="widgets/pdb", html=True), name="pdb")
 # app.mount(
 #     "/widgets/pdb",
