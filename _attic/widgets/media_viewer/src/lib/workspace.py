@@ -2,6 +2,9 @@ from pyodide.http import pyfetch, FetchResponse
 import json
 from typing import Any
 
+from servicewidgetdemo.lib.service_clients.workspace import WorkspaceInfo
+
+
 class Service:
     def __init__(self, url: str, module: str, token: str = None):
         self.url = url
@@ -117,7 +120,7 @@ class WorkspaceService(Service):
         object_info = result['infos'][0]
         return object_info_to_dict(object_info)
 
-    async def get_workspace_info(self, workspace_id: int) -> dict:
+    async def get_workspace_info(self, workspace_id: int) -> WorkspaceInfo:
         result, error = await self.call_func(
             'get_workspace_info',
             {

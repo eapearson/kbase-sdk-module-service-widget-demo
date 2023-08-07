@@ -6,9 +6,13 @@ from typing import Any, List, Tuple
 from fastapi import APIRouter, Header
 from pydantic import Field
 
-from servicewidgetdemo.lib.config import (Config, GitInfo, config,
-                                          get_git_info,
-                                          get_service_description)
+from servicewidgetdemo.lib.config import (
+    Config,
+    GitInfo,
+    config,
+    get_git_info,
+    get_service_description,
+)
 from servicewidgetdemo.lib.runtime import global_runtime
 from servicewidgetdemo.lib.type import ServiceBaseModel
 from servicewidgetdemo.lib.utils import epoch_time_millis
@@ -23,7 +27,7 @@ class StatusResponse(ServiceBaseModel):
     status: str = Field(...)
     time: int = Field(...)
     initial_time: int = Field(...)
-    start_time: int = Field(...)
+    start_time: int | None = Field(default=None)
 
 
 @router.get(
@@ -47,7 +51,7 @@ async def get_status() -> StatusResponse:
     It can be used as a healthcheck, for basic latency performance (as it makes no
     i/o or other high-latency calls), or for time synchronization (as it returns the current time).
     """
-    # TODO: start time, deal with it@
+    # TODO: start time, deal Kwith it@
     start_time = global_runtime.start_time
     status = global_runtime.status
     return StatusResponse(
@@ -175,7 +179,6 @@ async def get_rcsb_annotations(
     pdb_infos = []
 
     if "features" in genome_object["data"]:
-        print("HMM")
         for feature in genome_object["data"]["features"]:
             if "ontology_terms" in feature:
                 feature_id = feature["id"]
@@ -184,10 +187,10 @@ async def get_rcsb_annotations(
                     terms = ontology["RCSB"].keys()
                     for term in terms:
                         bare_term = term.split(":")[1].split("_")[0]
-                         # This should be unique for each row
+                        # This should be unique for each row
                         item_id = f"{feature_id}_{bare_term}"
                         pdb_infos.append(
-                            [
+                            (
                                 item_id,
                                 bare_term,
                                 "pdb",
@@ -197,10 +200,7 @@ async def get_rcsb_annotations(
                                 feature_id,
                                 feature["type"],
                                 "N/A",
-                            ]
+                            )
                         )
 
-        print("AAAHHH", pdb_infos)
-
-    # return {"pdb_features": pdb_infos}
     return GetRCSBAnnotationsResult(pdb_features=pdb_infos)

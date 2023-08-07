@@ -27,6 +27,7 @@ class KBaseService(ServiceBaseModel):
 class ServiceWidgetDemo(KBaseService):
     pass
 
+
 class Auth2Service(KBaseService):
     tokenCacheLifetime: int = Field(...)
     tokenCacheMaxSize: int = Field(...)

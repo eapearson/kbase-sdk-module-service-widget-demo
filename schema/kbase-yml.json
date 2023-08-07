@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbase.us/kb-sdk/kbase-yml.schema.json",
+  "title": "KBase Dynamic Service Metadata",
+  "description": "Describes the service for usage by the Service Wizard",
+  "type": "object",
+  "required": ["module-name", "module-description", "service-language", "module-version", "owners", "service-config"],
+  "properties": {
+    "module-name": {
+      "type": "string"
+    },
+    "module-description": {
+      "type": "string"
+    },
+    "service-language": {
+      "type": "string"
+    },
+    "module-version": {
+      "type": "string"
+    },
+    "owners": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "service-config": {
+      "type": "object",
+      "properties": {
+        "dynamic-service": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

@@ -4,7 +4,7 @@ The SDK version has been modified to integrate with this codebase, such as
 using httpx, pydantic models.
 """
 import json
-import httpx
+import requests
 from typing import Dict, Optional
 
 # from cache3 import SafeCache  # type: ignore
@@ -78,7 +78,9 @@ class KBaseAuth(object):
             return cache_value
 
         # TODO: timeout needs to be configurable
-        response = httpx.get(self.url, headers={"authorization": token}, timeout=10000)
+        response = requests.get(
+            self.url, headers={"authorization": token}, timeout=10000
+        )
         try:
             json_response = response.json()
         except json.JSONDecodeError as ex:
@@ -101,7 +103,7 @@ class KBaseAuth(object):
                 status_code=502,
             )
 
-        if not response.is_success:
+        if not response.ok:
             # The auth service should return a 500 for all errors
             # Make an attempt to handle a specific auth error
             appcode = json_response["error"]["appcode"]

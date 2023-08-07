@@ -48,9 +48,12 @@ from servicewidgetdemo.service_clients.KBaseAuth import (
     KBaseAuthErrorInfo,
     KBaseAuthInvalidToken,
 )
-from servicewidgetdemo.widgets.dynamic_demo.widget import Widget as DynamicDemoWidget
+
+# from servicewidgetdemo.widgets.dynamic_demo.widget import Widget as DynamicDemoWidget
 from servicewidgetdemo.widgets.media_viewer.widget import Widget as MediaViewer
-from servicewidgetdemo.widgets.protein_structures_viewer.widget import Widget as ProteinStructuresViewer
+from servicewidgetdemo.widgets.protein_structures_viewer.widget import (
+    Widget as ProteinStructuresViewer,
+)
 
 from servicewidgetdemo.lib.auth import ensure_authorization, ensure_authorization_cookie
 
@@ -142,6 +145,7 @@ class ValidationError(ServiceBaseModel):
 # our JSON-RPC 1.1 APIs operate (though not wrapped in an array).
 #
 
+
 # Have this return JSON in our "standard", or at least uniform, format. We don't
 # want users of this api to need to accept FastAPI/Starlette error format.
 # These errors are returned when the API is misused; they should not occur in production.
@@ -151,7 +155,7 @@ class ValidationError(ServiceBaseModel):
 async def validation_exception_handler(
     request: Request, exc: RequestValidationError
 ) -> JSONResponse:
-    data: ValidationError = ValidationError(detail=exc.errors(), body=exc.body)
+    data: ValidationError = ValidationError(detail=list(exc.errors()), body=exc.body)
     return error_response(
         "requestParametersInvalid",
         "Request Parameters Invalid",
@@ -425,6 +429,7 @@ app.mount(
     name="media-viewer-static",
 )
 
+
 #
 # Media viewer widget endpoint
 #
@@ -440,18 +445,20 @@ app.mount(
         404: {"description": "Not Found"},
     },
 )
-async def get_widgets_jinja2_demo(
+async def get_widgets_media_viewer(
     req: Request,
     ref: str = REF_PARAM,
     kbase_session: str | None = AUTHORIZATION_COOKIE_HEADER,
-    kbase_session_backup: str | None = AUTHORIZATION_COOKIE_HEADER) -> HTMLResponse:
+    kbase_session_backup: str | None = AUTHORIZATION_COOKIE_HEADER,
+) -> HTMLResponse:
     """
     Get API Documentation
 
     Provides a web interface to the auto-generated API docs.
     """
-
-    authorization, token_info = ensure_authorization_cookie(kbase_session, kbase_session_backup)
+    authorization, token_info = ensure_authorization_cookie(
+        kbase_session, kbase_session_backup
+    )
     try:
         widget = MediaViewer(token=authorization, ref=ref, config=config())
     except Exception as ex:
@@ -459,6 +466,7 @@ async def get_widgets_jinja2_demo(
         return HTMLResponse(content=message)
 
     return HTMLResponse(content=widget.render())
+
 
 app.mount(
     "/static",
@@ -477,6 +485,8 @@ app.mount(
     StaticFiles(directory="static/widgets/protein_structures_viewer"),
     name="protein-structures-viewer-static",
 )
+
+
 @app.get(
     "/widgets/protein-structures-viewer",
     response_class=HTMLResponse,
@@ -493,14 +503,17 @@ async def get_widgets_protein_structures_viewer(
     req: Request,
     ref: str = REF_PARAM,
     kbase_session: str | None = AUTHORIZATION_COOKIE_HEADER,
-    kbase_session_backup: str | None = AUTHORIZATION_COOKIE_HEADER) -> HTMLResponse:
+    kbase_session_backup: str | None = AUTHORIZATION_COOKIE_HEADER,
+) -> HTMLResponse:
     """
     Get API Documentation
 
     Provides a web interface to the auto-generated API docs.
     """
 
-    authorization, token_info = ensure_authorization_cookie(kbase_session, kbase_session_backup)
+    authorization, token_info = ensure_authorization_cookie(
+        kbase_session, kbase_session_backup
+    )
     try:
         widget = ProteinStructuresViewer(token=authorization, ref=ref, config=config())
     except Exception as ex:
@@ -508,4 +521,3 @@ async def get_widgets_protein_structures_viewer(
         return HTMLResponse(content=message)
 
     return HTMLResponse(content=widget.render())
-

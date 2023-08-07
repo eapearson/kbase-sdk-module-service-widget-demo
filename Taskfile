@@ -185,8 +185,6 @@ function develop-pdbinfo-widget {
   _shell-cra "pdbinfo"
 }
 
-
-
 #
 # This was the first attempt at generating API docs, but was not suitable for generation of
 # docs which could be viewed at GitHub. Left here for posterity, and because maybe we can get

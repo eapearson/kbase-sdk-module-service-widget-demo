@@ -2,10 +2,15 @@
 
 # Create the configuration file before starting the service.
 # TODO: should this be out of scope for this file?f
-scripts/deploy/render-config.sh
+set -E
+mkdir -p deploy
+jinja render \
+  -t etc/config.toml.jinja \
+  -o deploy/config.toml \
+  -e KBASE_ENDPOINT="${KBASE_ENDPOINT:?Required environment variable KBASE_ENDPOINT absent or empty}"
 
 # Move into the service directory, which is where ALL runtime files should be.
-cd service
+#cd service
 
 export MODULE_DIR="${PWD}"
 

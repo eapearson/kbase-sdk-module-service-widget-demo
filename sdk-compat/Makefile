@@ -9,10 +9,10 @@ all: compile build
 
 compile:
 	# nothing to see here
-	@echo Building widgets
-	./Taskfile build-status-widget
-	./Taskfile build-workspace-status-widget
-	./Taskfile build-pdb-widget
+    # 	@echo Building widgets
+    # 	./Taskfile build-status-widget
+    # 	./Taskfile build-workspace-status-widget
+    # 	./Taskfile build-pdb-widget
 
 build:
 	# Build widgets and place in build/widgets

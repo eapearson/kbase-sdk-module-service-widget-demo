@@ -12,14 +12,14 @@ from servicewidgetdemo.lib.service_clients.kbase_auth import KBaseAuth, TokenInf
 # from orcidlink.service_clients.KBaseAuth import KBaseAuth, TokenInfo
 
 
-async def get_username(kbase_auth_token: str) -> str:
+def get_username(kbase_auth_token: str) -> str:
     auth = KBaseAuth(
         url=config().services.Auth2.url,
         cache_lifetime=int(config().services.Auth2.tokenCacheLifetime / 1000),
         cache_max_size=config().services.Auth2.tokenCacheMaxSize,
     )
 
-    return await auth.get_username(kbase_auth_token)
+    return auth.get_username(kbase_auth_token)
 
 
 def ensure_authorization(
@@ -31,7 +31,7 @@ def ensure_authorization(
     purpose is to ensure that the provided token is good and valid.
     """
     if authorization is None:
-        raise Exception('Missing token')
+        raise Exception("Missing token")
         # raise ServiceError(
         #     error=ErrorResponse[ServiceBaseModel](
         #         code="missingToken",
@@ -40,7 +40,7 @@ def ensure_authorization(
         #     ),
         #     status_code=401,
         # )
-    print('[ensure_authorization]', authorization)
+
     auth = KBaseAuth(
         url=config().services.Auth2.url,
         cache_lifetime=int(config().services.Auth2.tokenCacheLifetime / 1000),
@@ -49,9 +49,9 @@ def ensure_authorization(
     token_info = auth.get_token_info(authorization)
     return authorization, token_info
 
+
 def ensure_authorization_cookie(
-    kbase_session: str | None,
-    kbase_session_backup: str | None
+    kbase_session: str | None, kbase_session_backup: str | None
 ) -> Tuple[str, TokenInfo]:
     """
     Ensures that the "authorization" value, the KBase auth token, is
@@ -60,12 +60,13 @@ def ensure_authorization_cookie(
     """
     authorization = kbase_session or kbase_session_backup
     if authorization is None:
-        raise Exception('Missing token')
-    print('[ensure_authorization]', authorization)
+        raise Exception("Missing token")
+
     auth = KBaseAuth(
         url=config().services.Auth2.url,
         cache_lifetime=int(config().services.Auth2.tokenCacheLifetime / 1000),
         cache_max_size=config().services.Auth2.tokenCacheMaxSize,
     )
     token_info = auth.get_token_info(authorization)
+
     return authorization, token_info

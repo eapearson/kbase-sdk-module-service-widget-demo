@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 
 
 def module_dir() -> str:
-    return os.environ['MODULE_DIR']
+    return os.environ["MODULE_DIR"]
     # my_dir = os.path.dirname(__file__)
     # return os.path.realpath(os.path.join(my_dir, "../../.."))
 
@@ -18,6 +18,16 @@ def current_time_millis() -> int:
 def epoch_time_millis() -> int:
     epoch_time = datetime.now(tz=timezone.utc).timestamp()
     return int(epoch_time * 1000)
+
+
+def posix_time_millis() -> int:
+    """
+    Returns the current epoch, or UTC, time in milliseconds
+
+    This function is handy to capture this pattern, as we prefer to
+    return time in milliseconds for all KBase apis.
+    """
+    return int(datetime.now(tz=timezone.utc).timestamp() * 1000)
 
 
 def make_date(

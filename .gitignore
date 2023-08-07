@@ -15,6 +15,7 @@ docs/api/index.html
 /work
 /widgets/**/build/
 node_modules/
+/_attic/
 
 
 # Testing

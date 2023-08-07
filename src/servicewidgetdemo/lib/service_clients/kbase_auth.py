@@ -15,6 +15,7 @@ import requests
 # from cache3 import SafeCache  # type: ignore
 from cachetools import TTLCache
 from pydantic import Field
+
 #
 # from orcidlink import model
 # from orcidlink.lib.errors import ServiceError
@@ -82,7 +83,9 @@ class KBaseAuth(object):
 
         # TODO: timeout needs to be configurable
 
-        response = requests.get(self.url,  headers={"authorization": token}, timeout=10000)
+        response = requests.get(
+            self.url, headers={"authorization": token}, timeout=10000
+        )
 
         result = response.json()
 

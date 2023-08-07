@@ -75,8 +75,8 @@ async def main():
 
     workspace = WorkspaceService(workspace_url, token=kbase_token)
     object_info = await workspace.get_object_info(object_ref)
-    if object_info.get('size') > 1_000_000:
-        raise Exception(f'Object too big: {object_info.get("size")}')
+    if object_info.size > 1_000_000:
+        raise Exception(f'Object too big: {object_info.size}')
 
     workspace_id, _, _ = parse_workspace_ref(object_ref)
 
@@ -98,7 +98,6 @@ async def main():
     render(ObjectInfoView(workspace_info, object_info))
     render(Tag('h3', 'Metadata'))
     render(MediaMetadataView(object_info.get('metadata')))
-    print('hmm', object_info.get('metadata'))
     print(object_info)
     print(workspace_info)
     print(media_object)

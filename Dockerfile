@@ -55,15 +55,12 @@ COPY ./sdk-compat /kb/module/sdk-compat
 # TODO: just separate out deploy scripts from dev scripts.
 # COPY ./sdk-compat/entrypoint.sh /kb/module/scripts
 COPY ./scripts/deploy /kb/module/scripts/deploy
-# COPY ./scripts/start-server.sh /kb/module/scripts
-# COPY ./scripts/render-config.sh /kb/module/scripts
 
 # Copy to service directory, which is where all runtime stuff needs to be.
 # And, honestly, nothing else matters once it is running, so that is all
 # there really needs to be
 COPY ./SERVICE_DESCRIPTION.toml /kb/module/service
 COPY ./src/servicewidgetdemo /kb/module/service/servicewidgetdemo
-#COPY ./build/widgets  /kb/module/service/widgets
 COPY ./static /kb/module/service/static
 
 WORKDIR /kb/module

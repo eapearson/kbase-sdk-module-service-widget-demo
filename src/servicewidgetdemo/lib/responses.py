@@ -96,9 +96,9 @@ def error_response_not_found(message: str) -> JSONResponse:
 
 class ExceptionTraceback(ServiceBaseModel):
     filename: str = Field(...)
-    line_number: str = Field(alias="line-number")
+    line_number: int | None = Field(default=None, alias="line-number")
     name: str = Field(...)
-    line: str = Field(...)
+    line: str | None = Field(default=None)
 
 
 class ExceptionData(ServiceBaseModel):
