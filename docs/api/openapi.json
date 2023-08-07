@@ -1,12 +1,12 @@
 {
-    "openapi": "3.0.2",
+    "openapi": "3.1.0",
     "info": {
         "title": "Widget Demo Dynamic Service",
         "description": "The ServiceWidgetDemo is a KBase SDK-compatible dynamic service for demonstrating\nthe ability to provide widgets in a dynamic service.\n",
         "termsOfService": "https://www.kbase.us/about/terms-and-conditions-v2/",
         "contact": {
             "name": "KBase, Lawrence Berkeley National Laboratory, DOE",
-            "url": "https://www.kbase.us",
+            "url": "https://www.kbase.us/",
             "email": "engage@kbase.us"
         },
         "license": {
@@ -30,7 +30,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/StatusResponse"
+                                    "$ref": "#/components/schemas/StatusResponseInput"
                                 }
                             }
                         }
@@ -70,26 +70,33 @@
                 "operationId": "get_rcsb_annotations_rcsb_annotations__ref__get",
                 "parameters": [
                     {
+                        "name": "ref",
+                        "in": "path",
                         "required": true,
                         "schema": {
-                            "title": "Ref",
-                            "type": "string"
-                        },
-                        "name": "ref",
-                        "in": "path"
+                            "type": "string",
+                            "title": "Ref"
+                        }
                     },
                     {
-                        "description": "KBase auth token",
+                        "name": "authorization",
+                        "in": "header",
                         "required": false,
                         "schema": {
-                            "title": "Authorization",
-                            "maxLength": 32,
-                            "minLength": 32,
-                            "type": "string",
-                            "description": "KBase auth token"
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "minLength": 32,
+                                    "maxLength": 32
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "KBase auth token",
+                            "title": "Authorization"
                         },
-                        "name": "authorization",
-                        "in": "header"
+                        "description": "KBase auth token"
                     }
                 ],
                 "responses": {
@@ -140,41 +147,170 @@
                     }
                 }
             }
+        },
+        "/widgets/media-viewer": {
+            "get": {
+                "tags": [
+                    "misc"
+                ],
+                "summary": "Get Widgets Media Viewer",
+                "description": "Get API Documentation\n\nProvides a web interface to the auto-generated API docs.",
+                "operationId": "get_widgets_media_viewer_widgets_media_viewer_get",
+                "parameters": [
+                    {
+                        "name": "ref",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "A KBase object ref (path)",
+                            "title": "Ref"
+                        },
+                        "description": "A KBase object ref (path)"
+                    },
+                    {
+                        "name": "kbase_session",
+                        "in": "cookie",
+                        "required": true,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "minLength": 32,
+                                    "maxLength": 32
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "KBase auth token",
+                            "title": "Kbase Session"
+                        },
+                        "description": "KBase auth token"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Jinja Demo Successfully rendered",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/widgets/protein-structures-viewer": {
+            "get": {
+                "tags": [
+                    "misc"
+                ],
+                "summary": "Get Widgets Protein Structures Viewer",
+                "description": "Get API Documentation\n\nProvides a web interface to the auto-generated API docs.",
+                "operationId": "get_widgets_protein_structures_viewer_widgets_protein_structures_viewer_get",
+                "parameters": [
+                    {
+                        "name": "ref",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "A KBase object ref (path)",
+                            "title": "Ref"
+                        },
+                        "description": "A KBase object ref (path)"
+                    },
+                    {
+                        "name": "kbase_session",
+                        "in": "cookie",
+                        "required": true,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "minLength": 32,
+                                    "maxLength": 32
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "KBase auth token",
+                            "title": "Kbase Session"
+                        },
+                        "description": "KBase auth token"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Jinja Demo Successfully rendered",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
         "schemas": {
             "Auth2Service": {
-                "title": "Auth2Service",
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "title": "Url"
+                    },
+                    "tokenCacheLifetime": {
+                        "type": "integer",
+                        "title": "Tokencachelifetime"
+                    },
+                    "tokenCacheMaxSize": {
+                        "type": "integer",
+                        "title": "Tokencachemaxsize"
+                    }
+                },
+                "type": "object",
                 "required": [
                     "url",
                     "tokenCacheLifetime",
                     "tokenCacheMaxSize"
                 ],
-                "type": "object",
-                "properties": {
-                    "url": {
-                        "title": "Url",
-                        "type": "string"
-                    },
-                    "tokenCacheLifetime": {
-                        "title": "Tokencachelifetime",
-                        "type": "integer"
-                    },
-                    "tokenCacheMaxSize": {
-                        "title": "Tokencachemaxsize",
-                        "type": "integer"
-                    }
-                }
+                "title": "Auth2Service"
             },
             "Config": {
-                "title": "Config",
-                "required": [
-                    "services",
-                    "ui",
-                    "module"
-                ],
-                "type": "object",
                 "properties": {
                     "services": {
                         "$ref": "#/components/schemas/Services"
@@ -185,10 +321,62 @@
                     "module": {
                         "$ref": "#/components/schemas/ModuleConfig"
                     }
-                }
+                },
+                "type": "object",
+                "required": [
+                    "services",
+                    "ui",
+                    "module"
+                ],
+                "title": "Config"
             },
             "GitInfo": {
-                "title": "GitInfo",
+                "properties": {
+                    "commit_hash": {
+                        "type": "string",
+                        "title": "Commit Hash"
+                    },
+                    "commit_hash_abbreviated": {
+                        "type": "string",
+                        "title": "Commit Hash Abbreviated"
+                    },
+                    "author_name": {
+                        "type": "string",
+                        "title": "Author Name"
+                    },
+                    "author_date": {
+                        "type": "integer",
+                        "title": "Author Date"
+                    },
+                    "committer_name": {
+                        "type": "string",
+                        "title": "Committer Name"
+                    },
+                    "committer_date": {
+                        "type": "integer",
+                        "title": "Committer Date"
+                    },
+                    "url": {
+                        "type": "string",
+                        "title": "Url"
+                    },
+                    "branch": {
+                        "type": "string",
+                        "title": "Branch"
+                    },
+                    "tag": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Tag"
+                    }
+                },
+                "type": "object",
                 "required": [
                     "commit_hash",
                     "commit_hash_abbreviated",
@@ -197,69 +385,25 @@
                     "committer_name",
                     "committer_date",
                     "url",
-                    "branch"
+                    "branch",
+                    "tag"
                 ],
-                "type": "object",
-                "properties": {
-                    "commit_hash": {
-                        "title": "Commit Hash",
-                        "type": "string"
-                    },
-                    "commit_hash_abbreviated": {
-                        "title": "Commit Hash Abbreviated",
-                        "type": "string"
-                    },
-                    "author_name": {
-                        "title": "Author Name",
-                        "type": "string"
-                    },
-                    "author_date": {
-                        "title": "Author Date",
-                        "type": "integer"
-                    },
-                    "committer_name": {
-                        "title": "Committer Name",
-                        "type": "string"
-                    },
-                    "committer_date": {
-                        "title": "Committer Date",
-                        "type": "integer"
-                    },
-                    "url": {
-                        "title": "Url",
-                        "type": "string"
-                    },
-                    "branch": {
-                        "title": "Branch",
-                        "type": "string"
-                    },
-                    "tag": {
-                        "title": "Tag",
-                        "type": "string"
-                    }
-                }
+                "title": "GitInfo"
             },
             "HTTPValidationError": {
-                "title": "HTTPValidationError",
-                "type": "object",
                 "properties": {
                     "detail": {
-                        "title": "Detail",
-                        "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/ValidationError"
-                        }
+                        },
+                        "type": "array",
+                        "title": "Detail"
                     }
-                }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
             },
             "InfoResponse": {
-                "title": "InfoResponse",
-                "required": [
-                    "service-description",
-                    "config",
-                    "git-info"
-                ],
-                "type": "object",
                 "properties": {
                     "service-description": {
                         "$ref": "#/components/schemas/ServiceDescription"
@@ -270,126 +414,195 @@
                     "git-info": {
                         "$ref": "#/components/schemas/GitInfo"
                     }
-                }
+                },
+                "type": "object",
+                "required": [
+                    "service-description",
+                    "config",
+                    "git-info"
+                ],
+                "title": "InfoResponse"
+            },
+            "KBaseService": {
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "title": "Url"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "url"
+                ],
+                "title": "KBaseService"
             },
             "ModuleConfig": {
-                "title": "ModuleConfig",
+                "properties": {
+                    "serviceRequestTimeout": {
+                        "type": "integer",
+                        "title": "Servicerequesttimeout"
+                    }
+                },
+                "type": "object",
                 "required": [
                     "serviceRequestTimeout"
                 ],
-                "type": "object",
-                "properties": {
-                    "serviceRequestTimeout": {
-                        "title": "Servicerequesttimeout",
-                        "type": "integer"
-                    }
-                }
+                "title": "ModuleConfig"
             },
             "ServiceDescription": {
-                "title": "ServiceDescription",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 50,
+                        "minLength": 2,
+                        "title": "Name"
+                    },
+                    "title": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 5,
+                        "title": "Title"
+                    },
+                    "language": {
+                        "type": "string",
+                        "maxLength": 50,
+                        "minLength": 1,
+                        "title": "Language"
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 4000,
+                        "minLength": 50,
+                        "title": "Description"
+                    }
+                },
+                "type": "object",
                 "required": [
                     "name",
                     "title",
                     "language",
                     "description"
                 ],
-                "type": "object",
+                "title": "ServiceDescription"
+            },
+            "ServiceWidgetDemo": {
                 "properties": {
-                    "name": {
-                        "title": "Name",
-                        "maxLength": 50,
-                        "minLength": 2,
-                        "type": "string"
-                    },
-                    "title": {
-                        "title": "Title",
-                        "maxLength": 100,
-                        "minLength": 5,
-                        "type": "string"
-                    },
-                    "language": {
-                        "title": "Language",
-                        "maxLength": 50,
-                        "minLength": 1,
-                        "type": "string"
-                    },
-                    "description": {
-                        "title": "Description",
-                        "maxLength": 4000,
-                        "minLength": 50,
-                        "type": "string"
+                    "url": {
+                        "type": "string",
+                        "title": "Url"
                     }
-                }
+                },
+                "type": "object",
+                "required": [
+                    "url"
+                ],
+                "title": "ServiceWidgetDemo"
             },
             "Services": {
-                "title": "Services",
-                "required": [
-                    "Auth2",
-                    "ServiceWidgetDemo"
-                ],
-                "type": "object",
                 "properties": {
                     "Auth2": {
                         "$ref": "#/components/schemas/Auth2Service"
                     },
                     "ServiceWidgetDemo": {
                         "$ref": "#/components/schemas/ServiceWidgetDemo"
+                    },
+                    "Workspace": {
+                        "$ref": "#/components/schemas/KBaseService"
                     }
-                }
+                },
+                "type": "object",
+                "required": [
+                    "Auth2",
+                    "ServiceWidgetDemo",
+                    "Workspace"
+                ],
+                "title": "Services"
             },
-            "StatusResponse": {
-                "title": "StatusResponse",
+            "StatusResponseInput": {
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "time": {
+                        "type": "integer",
+                        "title": "Time"
+                    },
+                    "initial_time": {
+                        "type": "integer",
+                        "title": "Initial Time"
+                    },
+                    "start_time": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Start Time"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "status",
+                    "time",
+                    "initial_time"
+                ],
+                "title": "StatusResponse"
+            },
+            "StatusResponseOutput": {
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "time": {
+                        "type": "integer",
+                        "title": "Time"
+                    },
+                    "initial_time": {
+                        "type": "integer",
+                        "title": "Initial Time"
+                    },
+                    "start_time": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Start Time"
+                    }
+                },
+                "type": "object",
                 "required": [
                     "status",
                     "time",
                     "initial_time",
                     "start_time"
                 ],
-                "type": "object",
-                "properties": {
-                    "status": {
-                        "title": "Status",
-                        "type": "string"
-                    },
-                    "time": {
-                        "title": "Time",
-                        "type": "integer"
-                    },
-                    "initial_time": {
-                        "title": "Initial Time",
-                        "type": "integer"
-                    },
-                    "start_time": {
-                        "title": "Start Time",
-                        "type": "integer"
-                    }
-                }
+                "title": "StatusResponse"
             },
             "UIConfig": {
-                "title": "UIConfig",
+                "properties": {
+                    "origin": {
+                        "type": "string",
+                        "title": "Origin"
+                    }
+                },
+                "type": "object",
                 "required": [
                     "origin"
                 ],
-                "type": "object",
-                "properties": {
-                    "origin": {
-                        "title": "Origin",
-                        "type": "string"
-                    }
-                }
+                "title": "UIConfig"
             },
             "ValidationError": {
-                "title": "ValidationError",
-                "required": [
-                    "loc",
-                    "msg",
-                    "type"
-                ],
-                "type": "object",
                 "properties": {
                     "loc": {
-                        "title": "Location",
-                        "type": "array",
                         "items": {
                             "anyOf": [
                                 {
@@ -399,30 +612,26 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "type": "array",
+                        "title": "Location"
                     },
                     "msg": {
-                        "title": "Message",
-                        "type": "string"
+                        "type": "string",
+                        "title": "Message"
                     },
                     "type": {
-                        "title": "Error Type",
-                        "type": "string"
+                        "type": "string",
+                        "title": "Error Type"
                     }
-                }
-            },
-            "WidgetDemoService": {
-                "title": "WidgetDemoService",
-                "required": [
-                    "url"
-                ],
+                },
                 "type": "object",
-                "properties": {
-                    "url": {
-                        "title": "Url",
-                        "type": "string"
-                    }
-                }
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
             }
         }
     },

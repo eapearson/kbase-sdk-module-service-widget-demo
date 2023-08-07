@@ -8,11 +8,6 @@ Note that KBase auth is not a JSON-RPC 1.1 or 2.0 service.
 import json
 from typing import Dict, Optional
 import requests
-
-# import httpx
-# import aiohttp
-
-# from cache3 import SafeCache  # type: ignore
 from cachetools import TTLCache
 from pydantic import Field
 

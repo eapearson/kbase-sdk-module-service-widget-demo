@@ -84,7 +84,7 @@ class ConfigManager:
             file_name = self.config_path
             with open(file_name, "r") as in_file:
                 config_yaml = toml.load(in_file)
-                return Config.parse_obj(config_yaml)
+                return Config.model_validate(config_yaml)
 
     def config(self, reload: bool = False) -> Config:
         if reload:
@@ -108,10 +108,10 @@ def config(reload: bool = False) -> Config:
 def get_service_description() -> ServiceDescription:
     file_path = os.path.join(module_dir(), "SERVICE_DESCRIPTION.toml")
     with open(file_path, "r") as file:
-        return ServiceDescription.parse_obj(toml.load(file))
+        return ServiceDescription.model_validate(toml.load(file))
 
 
 def get_git_info() -> GitInfo:
     path = os.path.join(module_dir(), "deploy/git-info.toml")
     with open(path, "r") as fin:
-        return GitInfo.parse_obj(toml.load(fin))
+        return GitInfo.model_validate(toml.load(fin))

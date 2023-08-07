@@ -3,7 +3,7 @@
 <table><tr><td>version: 0.1.0</td></tr></table>
 
 
-The WidgetDemo is a KBase SDK-compatible dynamic service for demonstrating
+The ServiceWidgetDemo is a KBase SDK-compatible dynamic service for demonstrating
 the ability to provide widgets in a dynamic service.
 
 <a name="header_terms-of-service"></a>
@@ -12,7 +12,7 @@ the ability to provide widgets in a dynamic service.
 <a name="header_contact"></a>
 ## Contact
 KBase, Lawrence Berkeley National Laboratory, DOE  
-<a href="https://www.kbase.us">https://www.kbase.us</a>  
+<a href="https://www.kbase.us/">https://www.kbase.us/</a>  
 engage@kbase.us
 <a name="header_license"></a>
 ## License
@@ -64,7 +64,7 @@ i/o or other high-latency calls), or for time synchronization (as it returns the
 
 <a name="header_output"></a>
 #### Output
-<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="150px"></th><th><img width="1000px"></th><th><img width="150px"></th><tr><th>Status Code</th><th>Description</th><th>Type</th></tr></thead><tbody><tr><td>200</td><td>Successfully returns the service status</td><td><a href="#user-content-header_type_statusresponse">StatusResponse</a></td></tr></tbody></table>
+<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="150px"></th><th><img width="1000px"></th><th><img width="150px"></th><tr><th>Status Code</th><th>Description</th><th>Type</th></tr></thead><tbody><tr><td>200</td><td>Successfully returns the service status</td><td><a href="#user-content-header_type_statusresponseinput">StatusResponseInput</a></td></tr></tbody></table>
 
 
 ---
@@ -93,7 +93,7 @@ Get RCSB Annotations from a Genome
 
 <a name="header_input"></a>
 #### Input
-<table><thead><tr><th colspan="4"><img width="2000px"></th></tr><tr><th><img width="150px"></th><th><img width="1000px"></th><th><img width="150px"></th><th><img width="150px"></th><tr><th>Name</th><th>Description</th><th>Type</th><th>In</th></tr></thead><tbody><tr><td>ref</td><td>n/a</td><td>string</td><td>path</td></tr><tr><td>authorization</td><td>KBase auth token</td><td>string</td><td>header</td></tr></tbody></table>
+<table><thead><tr><th colspan="4"><img width="2000px"></th></tr><tr><th><img width="150px"></th><th><img width="1000px"></th><th><img width="150px"></th><th><img width="150px"></th><tr><th>Name</th><th>Description</th><th>Type</th><th>In</th></tr></thead><tbody><tr><td>ref</td><td>n/a</td><td>string</td><td>path</td></tr><tr><td>authorization</td><td>KBase auth token</td><td>n/a</td><td>header</td></tr></tbody></table>
 
 
 <a name="header_output"></a>
@@ -117,6 +117,42 @@ Provides a web interface to the auto-generated API docs.
 <a name="header_output"></a>
 #### Output
 <table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="150px"></th><th><img width="1000px"></th><th><img width="150px"></th><tr><th>Status Code</th><th>Description</th><th>Type</th></tr></thead><tbody><tr><td>200</td><td>Successfully returned the api docs</td><td>text/html</td></tr><tr><td>404</td><td>Not Found</td><td><i>none</i></td></tr></tbody></table>
+
+
+---
+<a name="header_get-/widgets/media-viewer"></a>
+#### GET /widgets/media-viewer
+Get API Documentation
+
+Provides a web interface to the auto-generated API docs.
+
+
+<a name="header_input"></a>
+#### Input
+<table><thead><tr><th colspan="4"><img width="2000px"></th></tr><tr><th><img width="150px"></th><th><img width="1000px"></th><th><img width="150px"></th><th><img width="150px"></th><tr><th>Name</th><th>Description</th><th>Type</th><th>In</th></tr></thead><tbody><tr><td>ref</td><td>A KBase object ref (path)</td><td>string</td><td>query</td></tr><tr><td>kbase_session</td><td>KBase auth token</td><td>n/a</td><td>cookie</td></tr></tbody></table>
+
+
+<a name="header_output"></a>
+#### Output
+<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="150px"></th><th><img width="1000px"></th><th><img width="150px"></th><tr><th>Status Code</th><th>Description</th><th>Type</th></tr></thead><tbody><tr><td>200</td><td>Jinja Demo Successfully rendered</td><td>text/html</td></tr><tr><td>404</td><td>Not Found</td><td><i>none</i></td></tr><tr><td>422</td><td>Validation Error</td><td><a href="#user-content-header_type_httpvalidationerror">HTTPValidationError</a></td></tr></tbody></table>
+
+
+---
+<a name="header_get-/widgets/protein-structures-viewer"></a>
+#### GET /widgets/protein-structures-viewer
+Get API Documentation
+
+Provides a web interface to the auto-generated API docs.
+
+
+<a name="header_input"></a>
+#### Input
+<table><thead><tr><th colspan="4"><img width="2000px"></th></tr><tr><th><img width="150px"></th><th><img width="1000px"></th><th><img width="150px"></th><th><img width="150px"></th><tr><th>Name</th><th>Description</th><th>Type</th><th>In</th></tr></thead><tbody><tr><td>ref</td><td>A KBase object ref (path)</td><td>string</td><td>query</td></tr><tr><td>kbase_session</td><td>KBase auth token</td><td>n/a</td><td>cookie</td></tr></tbody></table>
+
+
+<a name="header_output"></a>
+#### Output
+<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="150px"></th><th><img width="1000px"></th><th><img width="150px"></th><tr><th>Status Code</th><th>Description</th><th>Type</th></tr></thead><tbody><tr><td>200</td><td>Jinja Demo Successfully rendered</td><td>text/html</td></tr><tr><td>404</td><td>Not Found</td><td><i>none</i></td></tr><tr><td>422</td><td>Validation Error</td><td><a href="#user-content-header_type_httpvalidationerror">HTTPValidationError</a></td></tr></tbody></table>
 
 
 ---
@@ -146,7 +182,7 @@ alphabetically, which is fine for looking them up, but not for their relationshi
 <a name="header_type_gitinfo"></a>
 ##### GitInfo
 
-<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>commit_hash</td><td>string</td><td>✓</td></tr><tr><td>commit_hash_abbreviated</td><td>string</td><td>✓</td></tr><tr><td>author_name</td><td>string</td><td>✓</td></tr><tr><td>author_date</td><td>integer</td><td>✓</td></tr><tr><td>committer_name</td><td>string</td><td>✓</td></tr><tr><td>committer_date</td><td>integer</td><td>✓</td></tr><tr><td>url</td><td>string</td><td>✓</td></tr><tr><td>branch</td><td>string</td><td>✓</td></tr><tr><td>tag</td><td>string</td><td></td></tr></tbody></table>
+<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>commit_hash</td><td>string</td><td>✓</td></tr><tr><td>commit_hash_abbreviated</td><td>string</td><td>✓</td></tr><tr><td>author_name</td><td>string</td><td>✓</td></tr><tr><td>author_date</td><td>integer</td><td>✓</td></tr><tr><td>committer_name</td><td>string</td><td>✓</td></tr><tr><td>committer_date</td><td>integer</td><td>✓</td></tr><tr><td>url</td><td>string</td><td>✓</td></tr><tr><td>branch</td><td>string</td><td>✓</td></tr><tr><td>tag</td><td><div><i>Any Of</i></div><div>string</div><div>null</div></td><td>✓</td></tr></tbody></table>
 
 
 
@@ -164,6 +200,13 @@ alphabetically, which is fine for looking them up, but not for their relationshi
 
 
 
+<a name="header_type_kbaseservice"></a>
+##### KBaseService
+
+<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>url</td><td>string</td><td>✓</td></tr></tbody></table>
+
+
+
 <a name="header_type_moduleconfig"></a>
 ##### ModuleConfig
 
@@ -178,17 +221,31 @@ alphabetically, which is fine for looking them up, but not for their relationshi
 
 
 
+<a name="header_type_servicewidgetdemo"></a>
+##### ServiceWidgetDemo
+
+<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>url</td><td>string</td><td>✓</td></tr></tbody></table>
+
+
+
 <a name="header_type_services"></a>
 ##### Services
 
-<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>Auth2</td><td><a href="#user-content-header_type_auth2service">Auth2Service</a></td><td>✓</td></tr><tr><td>WidgetDemoService</td><td><a href="#user-content-header_type_widgetdemoservice">WidgetDemoService</a></td><td>✓</td></tr></tbody></table>
+<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>Auth2</td><td><a href="#user-content-header_type_auth2service">Auth2Service</a></td><td>✓</td></tr><tr><td>ServiceWidgetDemo</td><td><a href="#user-content-header_type_servicewidgetdemo">ServiceWidgetDemo</a></td><td>✓</td></tr><tr><td>Workspace</td><td><a href="#user-content-header_type_kbaseservice">KBaseService</a></td><td>✓</td></tr></tbody></table>
 
 
 
-<a name="header_type_statusresponse"></a>
-##### StatusResponse
+<a name="header_type_statusresponseinput"></a>
+##### StatusResponseInput
 
-<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>status</td><td>string</td><td>✓</td></tr><tr><td>time</td><td>integer</td><td>✓</td></tr><tr><td>initial_time</td><td>integer</td><td>✓</td></tr><tr><td>start_time</td><td>integer</td><td>✓</td></tr></tbody></table>
+<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>status</td><td>string</td><td>✓</td></tr><tr><td>time</td><td>integer</td><td>✓</td></tr><tr><td>initial_time</td><td>integer</td><td>✓</td></tr><tr><td>start_time</td><td><div><i>Any Of</i></div><div>integer</div><div>null</div></td><td></td></tr></tbody></table>
+
+
+
+<a name="header_type_statusresponseoutput"></a>
+##### StatusResponseOutput
+
+<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>status</td><td>string</td><td>✓</td></tr><tr><td>time</td><td>integer</td><td>✓</td></tr><tr><td>initial_time</td><td>integer</td><td>✓</td></tr><tr><td>start_time</td><td><div><i>Any Of</i></div><div>integer</div><div>null</div></td><td>✓</td></tr></tbody></table>
 
 
 
@@ -203,13 +260,6 @@ alphabetically, which is fine for looking them up, but not for their relationshi
 ##### ValidationError
 
 <table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>loc</td><td>array</td><td>✓</td></tr><tr><td>msg</td><td>string</td><td>✓</td></tr><tr><td>type</td><td>string</td><td>✓</td></tr></tbody></table>
-
-
-
-<a name="header_type_widgetdemoservice"></a>
-##### WidgetDemoService
-
-<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>url</td><td>string</td><td>✓</td></tr></tbody></table>
 
 
 

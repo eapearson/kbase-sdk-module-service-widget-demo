@@ -2,7 +2,7 @@ import json
 import uuid
 from typing import Any, Optional
 
-import httpx
+import requests
 
 
 class ServiceError(Exception):
@@ -24,10 +24,10 @@ class JSONRPC11Service:
         if self.token is not None:
             headers["authorization"] = self.token
 
-        response = httpx.post(
+        response = requests.post(
             self.url,
             headers=headers,
-            content=json.dumps(
+            data=json.dumps(
                 {
                     "version": "1.1",
                     "id": str(uuid.uuid4()),

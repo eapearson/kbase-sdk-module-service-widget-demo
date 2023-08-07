@@ -1,7 +1,7 @@
 import json
 from typing import Any, List
 
-import httpx
+import requests
 from servicewidgetdemo.lib.json_file import get_prop
 
 
@@ -43,13 +43,13 @@ def save_markdown_json(markdown: List[str], file: str):
 
 def save_markdown_rendered(markdown: List[str], file: str):
     content = json.dumps({"text": render_markdown_list(markdown), "mode": "gfm"})
-    result = httpx.post(
+    result = requests.post(
         "https://api.github.com/markdown",
         headers={
             "Content-Type": "application/json",
             "Accept": "application/vnd.github+json",
         },
-        content=content,
+        data=content,
     )
     doc = f"""
 <!DOCTYPE html>

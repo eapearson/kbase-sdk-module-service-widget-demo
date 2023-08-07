@@ -80,7 +80,7 @@ async def get_info() -> InfoResponse:
     config_copy = config().copy(deep=True)
     git_info = get_git_info()
     # NB we can mix dict and model here.
-    return InfoResponse.parse_obj(
+    return InfoResponse.model_validate(
         {
             "service-description": service_description,
             "config": config_copy,

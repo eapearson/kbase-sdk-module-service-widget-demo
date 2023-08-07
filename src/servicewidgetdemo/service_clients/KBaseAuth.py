@@ -1,7 +1,7 @@
 """
 A basic KBase auth client for the Python server.
 The SDK version has been modified to integrate with this codebase, such as
-using httpx, pydantic models.
+using pydantic models.
 """
 import json
 import requests
@@ -113,7 +113,7 @@ class KBaseAuth(object):
             else:
                 raise KBaseAuthError("Auth Service Error", appcode, message)
 
-        token_info: TokenInfo = TokenInfo.parse_obj(json_response)
+        token_info: TokenInfo = TokenInfo.model_validate(json_response)
         self.cache[token] = token_info
         return token_info
 
