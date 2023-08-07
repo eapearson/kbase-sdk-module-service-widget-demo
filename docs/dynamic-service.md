@@ -73,3 +73,34 @@ The `sdk-compat` directory contains all artifact files necessary for deployment 
 
 - keep it synchronous, don't use async/await
   - we are trying to keep this approachable
+
+## Tools
+
+### `Taskfile`
+
+KBase SDK-based projects typically use `make` and a `Makefile`. I think this was originally due to tradition and the ubiquity of `make` in Unix-like systems. This project favors the `Taskfile`. 
+
+"make" is based on the paradigm of specifying recipes for creating build artifacts, predominantly executable and object files, originally for C and C-like programming language toolchains.
+
+However, when one steps away from C and into Python, Javascript, and the modern web stack in general, we don't generally produce single artifacts like this. We have a collection of tasks to accomplish building the app.
+
+For one, we predominantly use interpreted languages. Modern usage of interpreted languages tends to apply code quality tools against them to ensure consistent formatting, lack of syntax errors, optional typing with static analysis to validate types, testing, and so forth. In the case of Javascript we typically have minification and bundling applied, and for Typescript transpilation.
+
+Finally, we will have some set of processes to prepare an image and invoke a web server.
+
+In other words, we have a bunch of tasks to apply during development, release, and deployment - a perfect scene in which to introduce the "Taskfile".
+
+Now, generically we can discuss and perhaps agree that a "task oriented" tool is more appropriate to the application stack and workflow outlined above. There exist such tools for specific programming languages (Ruby's rake, Node's npm, Go's various tools). There also exist more general purpose task-runners (Javascript's gulp or grunt, "task", etc.)
+
+In this case, I've charted a path towards simplicity - the `Taskfile`, a straightforward bash script
+
+#### Origins
+
+Not to be confused with https://taskfile.dev/, it's home is https://github.com/adriancooney/Taskfile. Forks are a bit more up-to-date.
+
+
+
+
+#### How does it work
+
+> describ it here

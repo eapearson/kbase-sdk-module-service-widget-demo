@@ -143,6 +143,7 @@ def workspace_info_to_dict(workspace_info: RawWorkspaceInfo) -> WorkspaceInfo:
         metadata=metadata,
     )
 
+
 class WorkspaceService(Service):
     def __init__(self, url: str, token: str | None = None):
         super().__init__(url, "Workspace", token)
