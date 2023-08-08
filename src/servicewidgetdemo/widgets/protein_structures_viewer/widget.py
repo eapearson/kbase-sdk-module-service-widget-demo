@@ -1,8 +1,7 @@
 import json
 
 from jinja2 import ChoiceLoader, Environment, PackageLoader
-
-from servicewidgetdemo.lib.config import Config
+from servicewidgetdemo.lib.config import Config2
 from servicewidgetdemo.lib.service_clients.workspace import (
     WorkspaceService,
     parse_workspace_ref,
@@ -12,10 +11,10 @@ VIEWER_NAME = "protein_structures_viewer"
 
 
 class Widget:
-    def __init__(self, token: str, ref: str, config: Config):
+    def __init__(self, token: str, ref: str):
         self.token = token
         self.ref = ref
-        self.config = config
+        self.config = Config2()
         # Set up for loading templates out of the templates directory.
         global_loader = PackageLoader("servicewidgetdemo.widgets", "templates")
         widget_loader = PackageLoader(
@@ -28,7 +27,9 @@ class Widget:
         # get workspace and object infos.
 
         workspace = WorkspaceService(
-            self.config.services.Workspace.url, token=self.token
+            url=self.config.get_workspace_url(),
+            timeout=self.config.get_request_timeout(),
+            authorization=self.token,
         )
         object_info = workspace.get_object_info(self.ref)
         if object_info.size > 1_000_000:
@@ -39,8 +40,6 @@ class Widget:
         workspace_info = workspace.get_workspace_info(workspace_id)
 
         protein_structures_object = workspace.get_object(self.ref)
-
-        # print('OBJECT', json.dumps(workspace_info, indent=4), json.dumps(protein_structures_object, indent=4))
 
         pdb_infos_json = json.dumps(protein_structures_object["data"]["pdb_infos"])
 

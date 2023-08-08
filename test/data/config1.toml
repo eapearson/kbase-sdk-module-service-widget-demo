@@ -11,7 +11,7 @@ url = "http://127.0.0.1:9999/services/servicewidgetdemo"
 [services.Workspace]
 # but do we have a mock workspace yet?
 url = "http://127.0.0.1:9999/services/ws"
-
+f
 [ui]
 # in prod the ui host is narrative.kbase.us, but in all others it
 # is X.kbase.us, where X is ci, next, appdev, narrative-dev

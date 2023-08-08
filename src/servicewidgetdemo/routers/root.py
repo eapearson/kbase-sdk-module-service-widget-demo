@@ -1,24 +1,17 @@
 import json
-import uuid
+import time
 from pathlib import Path
 from typing import Any, List, Tuple
 
 from fastapi import APIRouter, Header
 from pydantic import Field
-
 from servicewidgetdemo.lib.config import (
-    Config,
-    GitInfo,
-    config,
-    get_git_info,
-    get_service_description,
+    Config2,
 )
 from servicewidgetdemo.lib.runtime import global_runtime
+from servicewidgetdemo.lib.service_clients.workspace import WorkspaceService
 from servicewidgetdemo.lib.type import ServiceBaseModel
 from servicewidgetdemo.lib.utils import epoch_time_millis
-from servicewidgetdemo.model import ServiceDescription
-from servicewidgetdemo.service_clients.Workspace import Workspace
-import time
 
 router = APIRouter(prefix="")
 
@@ -62,31 +55,26 @@ async def get_status() -> StatusResponse:
     )
 
 
-class InfoResponse(ServiceBaseModel):
-    service_description: ServiceDescription = Field(alias="service-description")
-    config: Config = Field(...)
-    git_info: GitInfo = Field(alias="git-info")
-
-
-@router.get("/info", response_model=InfoResponse, tags=["misc"])
-async def get_info() -> InfoResponse:
-    """
-    Get Service Information
-
-    Returns basic information about the service and its runtime configuration.
-    """
-    # TODO: version should either be separate call, or derived from the a file stamped during the build.
-    service_description = get_service_description()
-    config_copy = config().copy(deep=True)
-    git_info = get_git_info()
-    # NB we can mix dict and model here.
-    return InfoResponse.model_validate(
-        {
-            "service-description": service_description,
-            "config": config_copy,
-            "git-info": git_info,
-        }
-    )
+# REMOVE info response for now, just use /status.
+# class InfoResponse(ServiceBaseModel):
+#     config: Config = Field(...)
+#
+#
+# @router.get("/info", response_model=InfoResponse, tags=["misc"])
+# async def get_info() -> InfoResponse:
+#     """
+#     Get Service Information
+#
+#     Returns basic information about the service and its runtime configuration.
+#     """
+#     # TODO: version should either be separate call, or derived from the a file stamped during the build.
+#     config_copy = config().model_copy(deep=True)
+#     # NB we can mix dict and model here.
+#     return InfoResponse.model_validate(
+#         {
+#             "config": config_copy
+#         }
+#     )
 
 
 AUTHORIZATION_HEADER = Header(
@@ -122,19 +110,20 @@ async def get_rcsb_annotations(
     # Get genome, perhaps from cache.
     # TODO
 
-    print("HERE")
-
     raw_wsid, raw_objid, raw_ver = ref.split("_")
     wsid = int(raw_wsid)
     objid = int(raw_objid)
     ver = int(raw_ver)
     genomeRef = f"{wsid}/{objid}/{ver}"
 
-    print("AND THERE", genomeRef)
-
     # First ensure this user can access the object.
     # TODO: get from config.
-    workspace = Workspace("https://ci.kbase.us/services/ws", 10000, authorization)
+    config = Config2()
+    workspace = WorkspaceService(
+        url=config.get_workspace_url(),
+        timeout=config.get_request_timeout(),
+        authorization=authorization,
+    )
 
     start = time.perf_counter()
 
@@ -142,8 +131,6 @@ async def get_rcsb_annotations(
         raise Exception(f"Cannot access object with ref '{genomeRef}'")
 
     got_access = time.perf_counter()
-
-    print("ERRR")
 
     filename = f"object_{wsid}_{objid}_{ver}.json"
     filepath = Path(f"/kb/module/work/{filename}")

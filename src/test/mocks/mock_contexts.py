@@ -4,8 +4,6 @@ from test.mocks.mock_auth import MockAuthService
 from test.mocks.mock_imaginary_service import MockImaginaryService
 from test.mocks.mock_server import MockSDKJSON11Service, MockServer
 
-from servicewidgetdemo.lib import config
-
 
 @contextlib.contextmanager
 def no_stderr():
@@ -14,12 +12,12 @@ def no_stderr():
 
 
 @contextlib.contextmanager
-def mock_auth_service():
-    service = MockServer("127.0.0.1", MockAuthService)
+def mock_auth_service(port: int):
+    service = MockServer("127.0.0.1", port, MockAuthService)
     try:
         service.start_service()
-        url = f"{service.base_url()}/services/auth/api/V2/token"
-        config.config().services.Auth2.url = url
+        url = f"{service.base_url()}/services/auth"
+        # config.config().services.Auth2.url = url
 
         yield [service, MockAuthService, url]
     finally:
@@ -27,8 +25,8 @@ def mock_auth_service():
 
 
 @contextlib.contextmanager
-def mock_imaginary_service():
-    server = MockServer("127.0.0.1", MockImaginaryService)
+def mock_imaginary_service(port: int):
+    server = MockServer("127.0.0.1", port, MockImaginaryService)
     MockImaginaryService.reset_call_counts()
     try:
         server.start_service()
@@ -39,8 +37,8 @@ def mock_imaginary_service():
 
 
 @contextlib.contextmanager
-def mock_jsonrpc11_service():
-    server = MockServer("127.0.0.1", MockSDKJSON11Service)
+def mock_jsonrpc11_service(port: int):
+    server = MockServer("127.0.0.1", port, MockSDKJSON11Service)
     MockSDKJSON11Service.reset_call_counts()
     try:
         server.start_service()

@@ -1,11 +1,11 @@
 import contextlib
 import json
-from test.mocks.data import load_data_file
 from test.mocks.mock_contexts import mock_auth_service, no_stderr
 from urllib.parse import parse_qs, urlparse
 
 import pytest
-
+import os
+from unittest import mock
 from servicewidgetdemo.lib import responses
 from servicewidgetdemo.lib.responses import (
     JSONResponse,
@@ -14,19 +14,16 @@ from servicewidgetdemo.lib.responses import (
     error_response_not_found,
 )
 
-config_yaml = load_data_file("config1.toml")
-
 
 @contextlib.contextmanager
-def mock_services():
+def mock_services(port: int):
     with no_stderr():
-        with mock_auth_service():
+        with mock_auth_service(port):
             yield
 
 
 @pytest.fixture
 def fake_fs(fs):
-    fs.create_file("/kb/module/deploy/config.toml", contents=config_yaml)
     fs.add_real_directory("/kb/module/test/data")
     yield fs
 
@@ -91,6 +88,13 @@ def test_exception_error_response_no_data():
         assert isinstance(data["data"]["traceback"], list)
 
 
+TEST_ENV = {
+    "KBASE_ENDPOINT": f"http://foo/services/",
+    "MODULE_DIR": os.environ.get("MODULE_DIR"),
+}
+
+
+@mock.patch.dict(os.environ, TEST_ENV, clear=True)
 def test_ui_error_response(fake_fs):
     value = responses.ui_error_response("codex", "title", "message")
     assert isinstance(value, RedirectResponse)
@@ -98,9 +102,9 @@ def test_ui_error_response(fake_fs):
     assert "location" in value.headers
     assert value.headers.get("location").endswith("#servicewidgetdemo/error")
     url = urlparse(value.headers.get("location"))
-    assert url.scheme == "https"
+    assert url.scheme == "http"
     assert url.path == ""
-    assert url.hostname == "ci.kbase.us"
+    assert url.hostname == "foo"
     assert url.fragment == "servicewidgetdemo/error"
     # assert url.query
     query = parse_qs(url.query)

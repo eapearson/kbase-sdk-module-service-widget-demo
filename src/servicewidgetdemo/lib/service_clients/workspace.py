@@ -1,8 +1,22 @@
+import json
+import uuid
 from dataclasses import dataclass
+from typing import Any, Dict, Tuple
 
 import requests
-import json
-from typing import Any, Dict, Tuple
+from pydantic import Field
+from servicewidgetdemo.lib.type import ServiceBaseModel
+
+
+class ServiceError(Exception):
+    def __init__(
+        self, message: str, status_code: int, code: int, original_message: str
+    ):
+        super().__init__(self, message)
+        self.status_code = status_code
+        self.code = code
+        self.message = message
+        self.original_message = original_message
 
 
 def parse_workspace_ref(ref: str) -> Tuple[int, int, int]:
@@ -10,25 +24,34 @@ def parse_workspace_ref(ref: str) -> Tuple[int, int, int]:
     return int(wsid), int(objid), int(ver)
 
 
-class Service:
-    def __init__(self, url: str, module: str, token: str | None = None):
+class JSONRPC11Error(ServiceBaseModel):
+    code: int = Field(...)
+    message: str = Field(...)
+    data: Any | None = Field(default=None)
+
+
+class JSONRPC11Service:
+    def __init__(
+        self, url: str, module: str, timeout: int, authorization: str | None = None
+    ):
         self.url = url
         self.module = module
-        self.token = token
+        self.timeout = timeout
+        self.authorization = authorization
 
     def call_func(self, func_name: str, params: Any) -> Any:
         call_params = []
         if params is not None:
             call_params.append(params)
 
-        headers = {"Content-Type": "application/json"}
-        if self.token is not None:
-            headers["Authorization"] = self.token
+        headers = {"Content-Type": "application/json", "Accept": "application/json"}
+        if self.authorization is not None:
+            headers["Authorization"] = self.authorization
 
         try:
             rpc_call = {
                 "version": "1.1",
-                "id": "123",
+                "id": str(uuid.uuid4()),
                 "method": f"{self.module}.{func_name}",
                 "params": call_params,
             }
@@ -36,14 +59,26 @@ class Service:
         # except OSError as ose:
         #     raise Exception(f'Call to {func_name} failed: {str(ose)}')
         except Exception as ex:
-            raise Exception(
-                f"Call to {func_name} failed with unknown exception: {str(ex)}"
+            raise ServiceError(
+                message=f"Call to {func_name} failed with unknown exception",
+                status_code=0,
+                code=123,  ## TODO: determine error codes
+                original_message=str(ex),
             )
+            # raise Exception(
+            #     f"Call to {func_name} failed with unknown exception: {str(ex)}"
+            # )
 
         try:
             rpc_response = response.json()
         except json.JSONDecodeError as jsonde:
-            raise Exception(f"Did not receive proper json response: {str(jsonde)}")
+            raise ServiceError(
+                message="Cannot parse response as JSON",
+                status_code=0,
+                code=123,  # TODO: make error code table???
+                original_message=str(jsonde),
+            )
+            # raise Exception(f"Did not receive proper json response: {str(jsonde)}")
         if response.status_code != 200:
             return None, rpc_response.get("error")
 
@@ -51,7 +86,7 @@ class Service:
         if result is None:
             return None
 
-        return result[0], None
+        return result[0]
 
 
 @dataclass
@@ -144,9 +179,11 @@ def workspace_info_to_dict(workspace_info: RawWorkspaceInfo) -> WorkspaceInfo:
     )
 
 
-class WorkspaceService(Service):
-    def __init__(self, url: str, token: str | None = None):
-        super().__init__(url, "Workspace", token)
+class WorkspaceService(JSONRPC11Service):
+    def __init__(self, url: str, timeout: int, authorization: str | None = None):
+        super().__init__(
+            url=url, module="Workspace", timeout=timeout, authorization=authorization
+        )
 
     def get_status(self) -> Any:
         result, error = self.call_func("status", None)
@@ -165,7 +202,13 @@ class WorkspaceService(Service):
     def get_workspace_info(self, workspace_id: int) -> WorkspaceInfo:
         result, error = self.call_func("get_workspace_info", {"id": workspace_id})
         if error is not None:
-            raise Exception(f'Error fetching workspace info: {error.get("message")}')
+            raise ServiceError(
+                message="Error fetching workspace info",
+                status_code=500,  # or should we propagate form the call?
+                code=error.get("code"),
+                original_message=error.get("message"),
+            )
+            # raise Exception(f'Error fetching workspace info: {error.get("message")}')
         return workspace_info_to_dict(result)
 
     def get_object(self, ref: str) -> Any:
@@ -180,9 +223,24 @@ class WorkspaceService(Service):
             },
         )
         if error is not None:
-            raise Exception(f'Error fetching object info: {error.get("message")}')
+            raise ServiceError(
+                message="Error fetching object info",
+                status_code=500,  # or should we propagate form the call?
+                code=error.get("code"),
+                original_message=error.get("message"),
+            )
+            # raise Exception(f'Error fetching object info: {error.get("message")}')
 
         workspace_object = result["data"][0]
         workspace_object["info"] = object_info_to_dict(workspace_object["info"])
 
         return workspace_object
+
+    def can_access_object(self, ref: str) -> bool:
+        params = {"objects": [{"ref": ref}]}
+        try:
+            self.call_func("get_object_info3", params)
+            return True
+        except ServiceError as se:
+            print(str(se))
+            return False
