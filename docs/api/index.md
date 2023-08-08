@@ -68,24 +68,6 @@ i/o or other high-latency calls), or for time synchronization (as it returns the
 
 
 ---
-<a name="header_get-/info"></a>
-#### GET /info
-Get Service Information
-
-Returns basic information about the service and its runtime configuration.
-
-
-<a name="header_input"></a>
-#### Input
-*none*
-
-
-<a name="header_output"></a>
-#### Output
-<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="150px"></th><th><img width="1000px"></th><th><img width="150px"></th><tr><th>Status Code</th><th>Description</th><th>Type</th></tr></thead><tbody><tr><td>200</td><td>Successful Response</td><td><a href="#user-content-header_type_inforesponse">InfoResponse</a></td></tr></tbody></table>
-
-
----
 <a name="header_get-/rcsb-annotations/{ref}"></a>
 #### GET /rcsb-annotations/{ref}
 Get RCSB Annotations from a Genome
@@ -165,73 +147,10 @@ alphabetically, which is fine for looking them up, but not for their relationshi
 
 > TODO: a better presentation of related types
 
-<a name="header_type_auth2service"></a>
-##### Auth2Service
-
-<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>url</td><td>string</td><td>✓</td></tr><tr><td>tokenCacheLifetime</td><td>integer</td><td>✓</td></tr><tr><td>tokenCacheMaxSize</td><td>integer</td><td>✓</td></tr></tbody></table>
-
-
-
-<a name="header_type_config"></a>
-##### Config
-
-<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>services</td><td><a href="#user-content-header_type_services">Services</a></td><td>✓</td></tr><tr><td>ui</td><td><a href="#user-content-header_type_uiconfig">UIConfig</a></td><td>✓</td></tr><tr><td>module</td><td><a href="#user-content-header_type_moduleconfig">ModuleConfig</a></td><td>✓</td></tr></tbody></table>
-
-
-
-<a name="header_type_gitinfo"></a>
-##### GitInfo
-
-<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>commit_hash</td><td>string</td><td>✓</td></tr><tr><td>commit_hash_abbreviated</td><td>string</td><td>✓</td></tr><tr><td>author_name</td><td>string</td><td>✓</td></tr><tr><td>author_date</td><td>integer</td><td>✓</td></tr><tr><td>committer_name</td><td>string</td><td>✓</td></tr><tr><td>committer_date</td><td>integer</td><td>✓</td></tr><tr><td>url</td><td>string</td><td>✓</td></tr><tr><td>branch</td><td>string</td><td>✓</td></tr><tr><td>tag</td><td><div><i>Any Of</i></div><div>string</div><div>null</div></td><td>✓</td></tr></tbody></table>
-
-
-
 <a name="header_type_httpvalidationerror"></a>
 ##### HTTPValidationError
 
 <table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>detail</td><td>array</td><td></td></tr></tbody></table>
-
-
-
-<a name="header_type_inforesponse"></a>
-##### InfoResponse
-
-<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>service-description</td><td><a href="#user-content-header_type_servicedescription">ServiceDescription</a></td><td>✓</td></tr><tr><td>config</td><td><a href="#user-content-header_type_config">Config</a></td><td>✓</td></tr><tr><td>git-info</td><td><a href="#user-content-header_type_gitinfo">GitInfo</a></td><td>✓</td></tr></tbody></table>
-
-
-
-<a name="header_type_kbaseservice"></a>
-##### KBaseService
-
-<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>url</td><td>string</td><td>✓</td></tr></tbody></table>
-
-
-
-<a name="header_type_moduleconfig"></a>
-##### ModuleConfig
-
-<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>serviceRequestTimeout</td><td>integer</td><td>✓</td></tr></tbody></table>
-
-
-
-<a name="header_type_servicedescription"></a>
-##### ServiceDescription
-
-<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>name</td><td>string</td><td>✓</td></tr><tr><td>title</td><td>string</td><td>✓</td></tr><tr><td>language</td><td>string</td><td>✓</td></tr><tr><td>description</td><td>string</td><td>✓</td></tr></tbody></table>
-
-
-
-<a name="header_type_servicewidgetdemo"></a>
-##### ServiceWidgetDemo
-
-<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>url</td><td>string</td><td>✓</td></tr></tbody></table>
-
-
-
-<a name="header_type_services"></a>
-##### Services
-
-<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>Auth2</td><td><a href="#user-content-header_type_auth2service">Auth2Service</a></td><td>✓</td></tr><tr><td>ServiceWidgetDemo</td><td><a href="#user-content-header_type_servicewidgetdemo">ServiceWidgetDemo</a></td><td>✓</td></tr><tr><td>Workspace</td><td><a href="#user-content-header_type_kbaseservice">KBaseService</a></td><td>✓</td></tr></tbody></table>
 
 
 
@@ -246,13 +165,6 @@ alphabetically, which is fine for looking them up, but not for their relationshi
 ##### StatusResponseOutput
 
 <table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>status</td><td>string</td><td>✓</td></tr><tr><td>time</td><td>integer</td><td>✓</td></tr><tr><td>initial_time</td><td>integer</td><td>✓</td></tr><tr><td>start_time</td><td><div><i>Any Of</i></div><div>integer</div><div>null</div></td><td>✓</td></tr></tbody></table>
-
-
-
-<a name="header_type_uiconfig"></a>
-##### UIConfig
-
-<table><thead><tr><th colspan="3"><img width="2000px"></th></tr><tr><th><img width="1000px"></th><th><img width="200px"></th><th><img width="75px"></th><tr><th>Name</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td>origin</td><td>string</td><td>✓</td></tr></tbody></table>
 
 
 
