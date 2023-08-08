@@ -14,19 +14,17 @@ Routers include: link, linking-sessions, works, orcid, and root.
 """
 from typing import Any, Generic, List, TypeVar
 
-from fastapi import FastAPI, Header, Path, Query, Request
+from fastapi import FastAPI, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.staticfiles import StaticFiles
 from pydantic import Field
 
-# from pydantic.error_wrappers import ErrorDict
 from starlette import status
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import HTMLResponse, JSONResponse
 from fastapi import Cookie
 
-from servicewidgetdemo.lib.config import config
 from servicewidgetdemo.lib.errors import (
     FASTAPI_ERROR,
     NOT_FOUND,
@@ -43,7 +41,7 @@ from servicewidgetdemo.lib.runtime import global_runtime
 from servicewidgetdemo.lib.type import ServiceBaseModel
 from servicewidgetdemo.lib.utils import epoch_time_millis
 from servicewidgetdemo.routers import root
-from servicewidgetdemo.service_clients.KBaseAuth import (
+from servicewidgetdemo.lib.service_clients.kbase_auth import (
     KBaseAuthError,
     KBaseAuthErrorInfo,
     KBaseAuthInvalidToken,
@@ -339,9 +337,11 @@ async def docs(req: Request) -> HTMLResponse:
             status_code=404,
         )
 
-    openapi_url = config().services.ServiceWidgetDemo.url + app.openapi_url
+    # config = Config2()
+    # openapi_url = config. + app.openapi_url
+    # TODO: Need to work on this?
     return get_swagger_ui_html(
-        openapi_url=openapi_url,
+        openapi_url=app.openapi_url,
         title="API",
     )
 
@@ -460,7 +460,7 @@ async def get_widgets_media_viewer(
         kbase_session, kbase_session_backup
     )
     try:
-        widget = MediaViewer(token=authorization, ref=ref, config=config())
+        widget = MediaViewer(token=authorization, ref=ref)
     except Exception as ex:
         message = f"EXCEPTION {str(ex)}"
         return HTMLResponse(content=message)
@@ -515,7 +515,7 @@ async def get_widgets_protein_structures_viewer(
         kbase_session, kbase_session_backup
     )
     try:
-        widget = ProteinStructuresViewer(token=authorization, ref=ref, config=config())
+        widget = ProteinStructuresViewer(token=authorization, ref=ref)
     except Exception as ex:
         message = f"EXCEPTION {str(ex)}"
         return HTMLResponse(content=message)

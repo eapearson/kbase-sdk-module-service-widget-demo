@@ -5,28 +5,24 @@ using httpx, pydantic models.
 
 Note that KBase auth is not a JSON-RPC 1.1 or 2.0 service.
 """
-import json
-from typing import Dict, Optional
+from typing import Dict
+
 import requests
-
-# import httpx
-# import aiohttp
-
-# from cache3 import SafeCache  # type: ignore
 from cachetools import TTLCache
 from pydantic import Field
+from servicewidgetdemo.lib.type import ServiceBaseModel
+
 
 #
 # from orcidlink import model
 # from orcidlink.lib.errors import ServiceError
 # from orcidlink.lib.responses import ErrorResponse
 # from orcidlink.lib.type import ServiceBaseModel
-from pydantic import BaseModel
 
 
-class ServiceBaseModel(BaseModel):
-    class Config:
-        populate_by_name = True
+# class ServiceBaseModel(BaseModel):
+#     class Config:
+#         populate_by_name = True
 
 
 class TokenInfo(ServiceBaseModel):
@@ -49,27 +45,21 @@ class KBaseAuth(object):
 
     def __init__(
         self,
-        url: Optional[str] = None,
-        cache_max_size: Optional[int] = None,
-        cache_lifetime: Optional[int] = None,
+        url: str,
+        timeout: int,
+        cache_max_items: int,
+        cache_lifetime: int,
     ):
         """
         Constructor
         """
-        if url is None:
-            raise TypeError("missing required named argument 'url'")
-        self.url: str = url
-
-        if cache_max_size is None:
-            raise TypeError("missing required named argument 'cache_max_size'")
-        self.cache_max_size: int = cache_max_size
-
-        if cache_lifetime is None:
-            raise TypeError("missing required named argument 'cache_lifetime'")
-        self.cache_lifetime: int = cache_lifetime
+        self.url = url
+        self.timeout = timeout
+        self.cache_max_items = cache_max_items
+        self.cache_lifetime = cache_lifetime
 
         self.cache: TTLCache[str, TokenInfo] = TTLCache(
-            maxsize=self.cache_max_size, ttl=self.cache_lifetime
+            maxsize=self.cache_max_items, ttl=self.cache_lifetime
         )
 
     # @cachedmethod(lambda self: self.cache, key=partial(hashkey, 'token_info'))
@@ -82,29 +72,39 @@ class KBaseAuth(object):
             return cache_value
 
         # TODO: timeout needs to be configurable
-
         response = requests.get(
-            self.url, headers={"authorization": token}, timeout=10000
+            f"{self.url}/api/V2/token",
+            headers={"authorization": token},
+            timeout=self.timeout,
         )
 
-        result = response.json()
-
         if not response.ok:
-            # Make an attempt to handle a specific auth error
-            appcode = result["error"]["appcode"]
-            message = result["error"]["message"]
-            if appcode == 10020:
-                raise KBaseAuthInvalidToken("Invalid token")
+            if response.headers.get("content-type") == "application/json":
+                result = response.json()
+                # Make an attempt to handle a specific auth error
+                appcode = result["error"]["appcode"]
+                message = result["error"]["message"]
+                if appcode == 10020:
+                    raise KBaseAuthInvalidToken("Invalid token")
+                else:
+                    raise KBaseAuthError("Auth Service Error", appcode, message)
             else:
-                raise KBaseAuthError("Auth Service Error", appcode, message)
+                # assume it is text of some sort.
+                # TODO think about this more ...
+                raise KBaseAuthError(
+                    f"Unexpected error response: {response.status_code}",
+                    0,
+                    response.text,
+                )
 
+        result = response.json()
         token_info: TokenInfo = TokenInfo.model_validate(result)
         self.cache[token] = token_info
         return token_info
 
-    def get_username(self, token: str) -> str:
-        token_info = self.get_token_info(token)
-        return token_info.user
+    # def get_username(self, token: str) -> str:
+    #     token_info = self.get_token_info(token)
+    #     return token_info.user
 
 
 # class InvalidResponse(ServiceError):

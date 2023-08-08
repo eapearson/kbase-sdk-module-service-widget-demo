@@ -112,16 +112,16 @@ class MockService(http.server.BaseHTTPRequestHandler):
 
 
 class MockServer:
-    def __init__(self, ip_address: str, service_class):
+    def __init__(self, ip_address: str, port: int, service_class):
         self.ip_address = ip_address
-        # self.port = port
+        self.port = port
         self.service_class = service_class
         self.server = None
         self.server_thread = None
 
         with socket() as s:
             s.bind(("", 0))
-            self.port = s.getsockname()[1]
+            self.port = port  # s.getsockname()[1]
 
     def base_url(self):
         return f"http://{self.ip_address}:{self.port}"

@@ -10,55 +10,11 @@ Because configuration is needed throughout the service's code, it is provided by
 which is populated when the module is first loaded.
 """
 import os
-import threading
 from typing import Optional
+from urllib.parse import urljoin, urlparse
 
-import toml
 from pydantic import Field
 from servicewidgetdemo.lib.type import ServiceBaseModel
-from servicewidgetdemo.lib.utils import module_dir
-from servicewidgetdemo.model import ServiceDescription
-
-
-class KBaseService(ServiceBaseModel):
-    url: str = Field(...)
-
-
-class ServiceWidgetDemo(KBaseService):
-    pass
-
-
-class Auth2Service(KBaseService):
-    tokenCacheLifetime: int = Field(...)
-    tokenCacheMaxSize: int = Field(...)
-
-
-class MongoConfig(ServiceBaseModel):
-    host: str = Field(...)
-    port: int = Field(...)
-    database: str = Field(...)
-    username: str = Field(...)
-    password: str = Field(...)
-
-
-class ModuleConfig(ServiceBaseModel):
-    serviceRequestTimeout: int = Field(...)
-
-
-class Services(ServiceBaseModel):
-    Auth2: Auth2Service
-    ServiceWidgetDemo: ServiceWidgetDemo
-    Workspace: KBaseService
-
-
-class UIConfig(ServiceBaseModel):
-    origin: str = Field(...)
-
-
-class Config(ServiceBaseModel):
-    services: Services = Field(...)
-    ui: UIConfig = Field(...)
-    module: ModuleConfig = Field(...)
 
 
 class GitInfo(ServiceBaseModel):
@@ -73,45 +29,91 @@ class GitInfo(ServiceBaseModel):
     tag: Optional[str] = Field(default=None)
 
 
-class ConfigManager:
-    def __init__(self, config_path: str):
-        self.config_path = config_path
-        self.lock = threading.RLock()
-        self.config_data = self.get_config_data()
-
-    def get_config_data(self) -> Config:
-        with self.lock:
-            file_name = self.config_path
-            with open(file_name, "r") as in_file:
-                config_yaml = toml.load(in_file)
-                return Config.parse_obj(config_yaml)
-
-    def config(self, reload: bool = False) -> Config:
-        if reload:
-            self.config_data = self.get_config_data()
-
-        return self.config_data
+class ServiceDefault(ServiceBaseModel):
+    path: str = Field(...)
+    env_name: str = Field(...)
 
 
-GLOBAL_CONFIG_MANAGER = None
+class ServiceDefaults(ServiceBaseModel):
+    auth2: ServiceDefault = Field(...)
+    workspace: ServiceDefault = Field(...)
 
 
-def config(reload: bool = False) -> Config:
-    global GLOBAL_CONFIG_MANAGER
-    if GLOBAL_CONFIG_MANAGER is None:
-        GLOBAL_CONFIG_MANAGER = ConfigManager(
-            os.path.join(module_dir(), "deploy/config.toml")
+SERVICE_DEFAULTS = ServiceDefaults(
+    auth2=ServiceDefault(path="auth", env_name="KBASE_SERVICE_AUTH"),
+    workspace=ServiceDefault(path="ws", env_name="KBASE_SERVICE_WORKSPACE"),
+)
+
+
+class ConstantDefault(ServiceBaseModel):
+    value: int = Field(...)
+    env_name: str = Field(...)
+
+
+class ConstantDefaults(ServiceBaseModel):
+    token_cache_lifetime: ConstantDefault = Field(...)
+    token_cache_max_items: ConstantDefault = Field(...)
+    request_timeout: ConstantDefault = Field(...)
+
+
+CONSTANT_DEFAULTS = ConstantDefaults(
+    token_cache_lifetime=ConstantDefault(value=300, env_name="TOKEN_CACHE_LIFETIME"),
+    token_cache_max_items=ConstantDefault(
+        value=20000, env_name="TOKEN_CACHE_MAX_ITEMS"
+    ),
+    request_timeout=ConstantDefault(value=60, env_name="REQUEST_TIMEOUT"),
+)
+
+
+class Config2:
+    kbase_endpoint: str
+
+    def __init__(self) -> None:
+        kbase_endpoint = os.environ.get("KBASE_ENDPOINT")
+        if kbase_endpoint is None or len(kbase_endpoint) == 0:
+            raise ValueError('The "KBASE_ENDPOINT" environment variable was not found')
+        self.kbase_endpoint = kbase_endpoint
+
+    def get_service_url(self, service_default: ServiceDefault) -> str:
+        env_path = os.environ.get(service_default.env_name)
+        path = env_path or service_default.path
+        return urljoin(self.kbase_endpoint, path)
+
+    def get_auth_url(self) -> str:
+        return self.get_service_url(SERVICE_DEFAULTS.auth2)
+
+    def get_workspace_url(self) -> str:
+        return self.get_service_url(SERVICE_DEFAULTS.workspace)
+
+    # MORE...
+
+    # Configurable constants
+
+    @staticmethod
+    def get_constant(constant_default: ConstantDefault) -> int:
+        value = os.environ.get(constant_default.env_name)
+        if value is not None:
+            return int(value)
+
+        return constant_default.value
+
+    def get_cache_lifetime(self) -> int:
+        return self.get_constant(CONSTANT_DEFAULTS.token_cache_lifetime)
+
+    def get_cache_max_items(self) -> int:
+        return self.get_constant(CONSTANT_DEFAULTS.token_cache_max_items)
+
+    def get_request_timeout(self) -> int:
+        return self.get_constant(CONSTANT_DEFAULTS.request_timeout)
+
+    # misc
+
+    def get_ui_origin(self) -> str:
+        endpoint_url = urlparse(self.kbase_endpoint)
+        # [protocol, _, endpoint_host] = self.kbase_endpoint.split('/')[2]
+        host = (
+            "narrative.kbase.us"
+            if endpoint_url.hostname == "kbase.us"
+            else endpoint_url.netloc
         )
-    return GLOBAL_CONFIG_MANAGER.config(reload)
-
-
-def get_service_description() -> ServiceDescription:
-    file_path = os.path.join(module_dir(), "SERVICE_DESCRIPTION.toml")
-    with open(file_path, "r") as file:
-        return ServiceDescription.parse_obj(toml.load(file))
-
-
-def get_git_info() -> GitInfo:
-    path = os.path.join(module_dir(), "deploy/git-info.toml")
-    with open(path, "r") as fin:
-        return GitInfo.parse_obj(toml.load(fin))
+        return f"{endpoint_url.scheme}://{endpoint_url.hostname}"

@@ -10,4 +10,6 @@ services:
     volumes:
       # Update this to wherever you want VS Code to mount the folder of your project
       - .:/kb/module
+    environment:
+      - MINIMAL_COVERAGE
     # no environment needed as all services are mocked locally

@@ -55,6 +55,13 @@ The `sdk-compat` directory contains all artifact files necessary for deployment 
 
 ### Dockerfile
 
+## Conventions
+
+### Formatting with `black` yet `flake8` compliant
+
+### Type hints and keeping `mypy` happy
+
+
 ## New Architecture
 
 ## Design Principles

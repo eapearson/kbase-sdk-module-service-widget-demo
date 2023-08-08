@@ -8,6 +8,11 @@ tokenCacheMaxSize = 20000
 [services.ServiceWidgetDemo]
 url = "https://ci.kbase.us/services/ServiceWidgetDemo"
 
+[services.Workspace]
+# but do we have a mock workspace yet?
+url = "https://ci.kbase.us/services/ws"
+
+
 [ui]
 # in prod the ui host is narrative.kbase.us, but in all others it
 # is X.kbase.us, where X is ci, next, appdev, narrative-dev

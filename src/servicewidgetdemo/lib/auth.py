@@ -1,25 +1,30 @@
-from typing import Any, Coroutine, Tuple
+from typing import Tuple
 
-from servicewidgetdemo.lib.config import config
+from servicewidgetdemo.lib.config import Config2
 from servicewidgetdemo.lib.service_clients.kbase_auth import KBaseAuth, TokenInfo
 
-
-#
-# from orcidlink.lib.config import config
-# from orcidlink.lib.errors import ServiceError
-# from orcidlink.lib.responses import ErrorResponse
-# from orcidlink.lib.type import ServiceBaseModel
-# from orcidlink.service_clients.KBaseAuth import KBaseAuth, TokenInfo
+"""
+A 
+"""
 
 
 def get_username(kbase_auth_token: str) -> str:
-    auth = KBaseAuth(
-        url=config().services.Auth2.url,
-        cache_lifetime=int(config().services.Auth2.tokenCacheLifetime / 1000),
-        cache_max_size=config().services.Auth2.tokenCacheMaxSize,
+    """
+    Given a KBase browser auth token (aka "kbase_session"), return the username associated with the
+    user account.
+
+    Note that this relies extensively upon the "config()" module, which in turn relies upon a
+    configuration file being available in the file sysresponsestem.
+    """
+    config = Config2()
+    auth_client = KBaseAuth(
+        url=config.get_auth_url(),
+        timeout=config.get_request_timeout(),
+        cache_lifetime=config.get_cache_lifetime(),
+        cache_max_items=config.get_cache_max_items(),
     )
 
-    return auth.get_username(kbase_auth_token)
+    return auth_client.get_token_info(kbase_auth_token).user
 
 
 def ensure_authorization(
@@ -30,21 +35,15 @@ def ensure_authorization(
     not none. This is a convenience function for endpoints, whose sole
     purpose is to ensure that the provided token is good and valid.
     """
-    if authorization is None:
-        raise Exception("Missing token")
-        # raise ServiceError(
-        #     error=ErrorResponse[ServiceBaseModel](
-        #         code="missingToken",
-        #         title="Missing Token",
-        #         message="API call requires a KBase auth token",
-        #     ),
-        #     status_code=401,
-        # )
+    if authorization is None or authorization == "":
+        raise Exception("Authorization required")
 
+    config = Config2()
     auth = KBaseAuth(
-        url=config().services.Auth2.url,
-        cache_lifetime=int(config().services.Auth2.tokenCacheLifetime / 1000),
-        cache_max_size=config().services.Auth2.tokenCacheMaxSize,
+        url=config.get_auth_url(),
+        timeout=config.get_request_timeout(),
+        cache_lifetime=config.get_cache_lifetime(),
+        cache_max_items=config.get_cache_max_items(),
     )
     token_info = auth.get_token_info(authorization)
     return authorization, token_info
@@ -59,13 +58,15 @@ def ensure_authorization_cookie(
     purpose is to ensure that the provided token is good and valid.
     """
     authorization = kbase_session or kbase_session_backup
-    if authorization is None:
-        raise Exception("Missing token")
+    if authorization is None or authorization == "":
+        raise Exception("Authorization required")
 
+    config = Config2()
     auth = KBaseAuth(
-        url=config().services.Auth2.url,
-        cache_lifetime=int(config().services.Auth2.tokenCacheLifetime / 1000),
-        cache_max_size=config().services.Auth2.tokenCacheMaxSize,
+        url=config.get_auth_url(),
+        timeout=config.get_request_timeout(),
+        cache_lifetime=config.get_cache_lifetime(),
+        cache_max_items=config.get_cache_max_items(),
     )
     token_info = auth.get_token_info(authorization)
 

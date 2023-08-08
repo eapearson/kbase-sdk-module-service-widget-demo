@@ -1,8 +1,6 @@
-import json
-
 from jinja2 import ChoiceLoader, Environment, PackageLoader
 
-from servicewidgetdemo.lib.config import Config
+from servicewidgetdemo.lib.config import Config2
 from servicewidgetdemo.lib.service_clients.workspace import (
     WorkspaceService,
     parse_workspace_ref,
@@ -10,7 +8,7 @@ from servicewidgetdemo.lib.service_clients.workspace import (
 
 
 class Widget:
-    def __init__(self, token: str, ref: str, config: Config):
+    def __init__(self, token: str, ref: str):
         # KBase auth token, as provided by the router
         self.token = token
 
@@ -19,7 +17,7 @@ class Widget:
 
         # Config, as provided by the router, but that just gets it from  the
         # global service config.
-        self.config = config
+        self.config = Config2()
 
         # Set up for loading templates out of the templates directory.
         global_loader = PackageLoader("servicewidgetdemo.widgets", "templates")
@@ -32,7 +30,9 @@ class Widget:
     def render(self) -> str:
         # get workspace and object infos.
         workspace = WorkspaceService(
-            self.config.services.Workspace.url, token=self.token
+            url=self.config.get_workspace_url(),
+            timeout=self.config.get_request_timeout(),
+            authorization=self.token,
         )
         try:
             object_info = workspace.get_object_info(self.ref)
